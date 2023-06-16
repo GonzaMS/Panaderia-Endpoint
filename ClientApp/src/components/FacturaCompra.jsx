@@ -82,13 +82,35 @@ export const FacturaCompra = () => {
   }, []);
 
   const handleAgregarItem = () => {
+
     const nuevoItem = {
       proveedor: proveedorSeleccionado,
       ingrediente: ingredienteSeleccionado,
       cantidad: parseFloat(cantidad),
       precioUnitario: parseFloat(precioUnitario),
-      impuesto: parseFloat(impuesto),
     };
+
+    //Comprobamos el nombre del nuevoItem con los items existentes
+
+    const nombreItem = nuevoItem.ingrediente;
+    console.log(nombreItem);
+
+    const itemExistente = items.find(item => item.ingrediente === nombreItem);
+
+    console.log(itemExistente);
+
+    if(itemExistente){
+      //Retornamos el item existente con el id del item existente
+      const itemExistenteConId = {
+        ...itemExistente,
+        id: itemExistente.id
+      }
+
+      console.log(itemExistenteConId);
+
+    }
+    
+    console.log(items);
 
     setItems([...items, nuevoItem]);
     const Total = parseFloat(precioUnitario) * parseFloat(cantidad);

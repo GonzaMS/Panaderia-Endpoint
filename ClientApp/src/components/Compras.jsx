@@ -39,6 +39,8 @@ export class Compras extends Component {
         date_compra: this.fechaActual,
         str_numero_factura: null,
       };
+
+      console.log("Factura a guardar:", compras);
       const comprasResponse = await axios.post("https://localhost:7089/api/compras", compras);
       const compraGuardada = comprasResponse.data;
       
