@@ -1,0 +1,427 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 950px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: white;
+}
+
+.loader {
+    border-color: #0070f3;
+    border-left-color: #0070f355;
+    border-bottom-color: #0070f355;
+    border-radius: 50%;
+    border-style: solid;
+    border-width: 5px;
+    height: 1.5rem;
+    width: 1.5rem;
+    animation: spiner 1s linear infinite;
+}
+
+@keyframes spiner {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.error-message {
+    background-color: rgb(201, 44, 44);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 5px;
+}
+
+.dark {
+    background-color: #eee;
+    filter: invert(1);
+}
+
+.left-button {
+    height: 36px;
+    width: 200px;
+    margin-left: 50px;
+}
+
+.btn-outline-primary {
+    background-color: coral;
+}
+
+.fondo-panel {
+    background: rgb(2, 0, 36);
+    background: linear-gradient(90deg, rgba(2, 0, 36, 1) 0%, rgba(231, 124, 15, 1) 0%, rgba(247, 214, 111, 1) 32%);
+}
+
+.log-image img {
+    width: 210px;
+    height: 210px;
+}
+
+p,
+h1 {
+    font-weight: bold;
+    font-size: 200%;
+    text-shadow: 0.1em 0.1em 0.2em grey;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+
+/*buscador*/
+.input-group input[type="search"] {
+    font-size: 16px;
+    padding: 5px;
+}
+
+
+.input-group button {
+    font-size: 14px;
+    padding: 1px 5px;
+    background-color: rgb(201, 44, 44);
+    font-weight: bold;
+    color: #eee;
+    border-color: brown;
+}
+
+.btn-link {
+    margin-right: 100%;
+}
+
+
+.numero-arqueo-input {
+    height: 40px;
+    /*alto*/
+    margin-left: 10px;
+    margin-right: -100px;
+}
+
+.numero-arqueo-label {
+    color: black;
+    display: flex;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: small;
+    padding: 2px 3px;
+    /* Ajusta el espaciado interno del fondo */
+}
+
+.numero-arqueo-label {
+    width: 12%;
+    margin-top: 15px;
+}
+
+.saldoI-label,
+.ingreso-label,
+.saldoF-label,
+.egreso-label {
+    width: 70%;
+}
+
+.fecha-input,
+.saldoI-input {
+    height: 40px;
+    /*alto*/
+    margin-left: 10px;
+}
+
+.inicio-input {
+    height: 40px;
+    margin-left: -6px;
+}
+
+.fin-input,
+.ingreso-input {
+    height: 40px;
+    margin-left: 10px;
+}
+
+.saldoF-input {
+    height: 40px;
+    ;
+}
+
+.saldoI-input {
+    height: 40px;
+}
+
+.egreso-input {
+    height: 40px;
+    margin-left: 5px;
+}
+
+.inicio-label,
+.fin-label,
+.fecha-label {
+    color: black;
+    margin-top: 1px;
+    display: flex;
+    border-radius: 2px;
+    font-weight: bold;
+    font-size: small;
+    padding: 2px 3px;
+    /* Ajusta el espaciado interno del fondo */
+
+}
+
+.saldoI-label,
+.ingreso-label,
+.saldoF-label,
+.egreso-label {
+    color: black;
+    display: flex;
+    border-radius: 2px;
+    font-weight: bold;
+    font-size: small;
+    padding: 2px 3px;
+    /* Ajusta el espaciado interno del fondo */
+}
+
+.saldoI-label,
+.ingreso-label {
+    margin-left: 20%;
+}
+
+.metodo-pago-table,
+.billete-table,
+.moneda-table {
+    border: 1px solid #ccc;
+    /* Agrega un borde de 1px sólido con color gris claro */
+    border-collapse: collapse;
+    /* Combina los bordes de las celdas */
+    margin-top: 10px;
+    width: 100%;
+}
+
+.metodo-input,
+.importeE-input,
+.importeA-input,
+.denominacionB-input,
+.cantidadB-input {
+    height: 35px;
+    background-color: burlywood;
+}
+
+.cantidad-totalB,
+.cantidadM {
+    font-size: 15px;
+    margin-top: 10px;
+}
+
+.billetes-total,
+.totalM {
+    font-size: 15px;
+    margin-top: -2%;
+}
+
+.button-group {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+}
+
+.save {
+    margin-top: 20px;
+    margin-right: 10px;
+}
+
+.imprimir {
+    margin-top: 20px;
+    margin-left: 10px;
+}
+
+.info-guardada {
+    font-size: x-small;
+    margin-top: 100px;
+    margin-left: -200px;
+}
+
+.ingreso-input,
+.numero-arqueo-input,
+.fecha-input,
+.inicio-input,
+.fin-input,
+.saldoI-input,
+.saldoF-input,
+.ingreso-input,
+.egreso-input {
+    background-color: rgb(224, 172, 104) !important;
+    color: rgb(224, 172, 104);
+}
+
+.custom-button {
+    color: white;
+    background-color: rgba(20, 70, 20, 0.822);
+    padding: 5px 10px;
+    font-size: 16px;
+    border-radius: 5px;
+}
+
+.justify-content-end {
+    display: flex;
+    justify-content: flex-end;
+}
+
+p2 {
+    font-weight: bold;
+    text-shadow: 0.1em 0.1em 0.2em grey;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 25px;
+}
+
+.facturaAgg {
+    margin-left: 950px;
+    margin-top: 30px;
+}
+
+.row.justify-content-end.formaCobro {
+    margin-left: 450px;
+}
+
+
+.facturaAgg {
+    margin-left: 950px;
+    margin-top: 30px;
+}
+
+
+#customers {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 15px;
+}
+
+#customers td,
+#customers th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+#customers tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+#customers tr:hover {
+    background-color: #ddd;
+}
+
+#customers th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #a59d2d;
+    color: white;
+}
+
+.codigoP {
+    height: 40px;
+    margin-left: 165px;
+    margin-top: -30px;
+}
+
+.cantidadP {
+    height: 40px;
+    margin-left: 280px;
+    margin-top: -30px;
+}
+
+.custom-input {
+    height: 40px;
+    margin-left: 165px;
+    margin-top: -30px;
+}
+
+.totalP {
+    height: 30px;
+    margin-left: 930px;
+    margin-top: -25px;
+}
+
+.totalP-label {
+    margin-left: 870px;
+}
+
+.cantidadP-label {
+    margin-left: 200px;
+}
+
+.fecha-actual {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+}
+
+
+.form-group.row .form-control {
+    width: 200%;
+    margin-left: 55px;
+    margin-top: 20px;
+}
+
+.form-group label {
+    margin-top: 20px;
+    font-weight: bold;
+}
+
+.form-group .custom-input {
+    width: 235px;
+    margin-left: 100px;
+}
+
+.nameCliente {
+    margin-left: 160px;
+}
+
+.client-input {
+    margin-left: 230px;
+    margin-top: -30px;
+    width: 300px !important;
+}
+
+/* Estilos para el input del proveedor */
+.proveedor-input {
+    margin-top: 15px;
+    margin-right: -40px;
+    width: 300px;
+    /* Ajusta el ancho aquí según tus preferencias */
+}
+
+
+/*Ordenes Produccion*/
+.title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.table {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.btn {
+    cursor: pointer;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background-color: #0069d9;
+}
+
+.precioP-label {
+    margin-left: 150px;
+}

@@ -1,0 +1,79 @@
+.container {
+  display: flex;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+body {
+  padding-left: 0%;
+  padding-top: 0%;
+}
+
+@keyframes spiner {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.error-message {
+  background-color: rgb(201, 44, 44);
+  color: white;
+  padding: 1rem 2rem;
+  border-radius: 5px;
+}
+
+.dark {
+  background-color: #eee;
+  filter: invert(1);
+}
+
+.left-button {
+  height: 36px;
+  width: 200px;
+  margin-left: 50px;
+}
+
+.btn-outline-primary {
+  background-color: coral;
+}
+
+.fondo-panel {
+  background: rgb(2, 0, 36);
+  background: linear-gradient(90deg, rgba(2, 0, 36, 1) 0%, rgba(231, 124, 15, 1) 0%, rgba(247, 214, 111, 1) 32%);
+}
+
+.log-image img {
+  width: 210px;
+  height: 210px;
+}
+
+p {
+  font-weight: bold;
+  font-size: 200%;
+  text-shadow: 0.1em 0.1em 0.2em grey;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+/*buscador*/
+.input-group input[type="search"] {
+  font-size: 16px;
+  padding: px;
+}
+
+
+.input-group button {
+  font-size: 14px;
+  padding: 1px 5px;
+  background-color: rgb(201, 44, 44);
+  font-weight: bold;
+  color: #eee;
+  border-color: brown;
+}
+
+.btn-link {
+  margin-right: 10%;
+}
