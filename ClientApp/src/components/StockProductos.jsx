@@ -2,24 +2,26 @@ import "../css/custom.css";
 import React, { Component } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 import { Table, Container } from "reactstrap";
 
 export class StockProductos extends Component {
   state = {
-    stocks: [],
-    productos_elaborados_sotck: [],
-    productos_elaborados: [],
-    detalles_productos: [],
-    productosFiltrados: [],
-    modalActualizar: false,
-    modalInsertar: false,
+    stocks: [], // Estado de los productos
+    productos_elaborados_sotck: [], // Estado de los productos elaborados
+    productos_elaborados: [], // Estado de los productos elaborados
+    detalles_productos: [], // Estado de los detalles de los productos
+    productosFiltrados: [], // Estado de los productos filtrados
+    modalActualizar: false, // Estado del modal actualizar
+    modalInsertar: false, // Estado del modal insertar
   };
 
   componentDidMount() {
     this.fetchDatos();
   }
 
+  //Obtener los datos de la API
   fetchDatos = () => {
     try {
       //Obtener el stock de productos
@@ -68,37 +70,39 @@ export class StockProductos extends Component {
 
   //Obtener el nombre del producto elaborado
   obtenerProducto = (fk_producto_elaborado) => {
-    const {productos_elaborados} = this.state;
+    const { productos_elaborados } = this.state;
 
-
+    // Buscar el producto elaborado
     const productoEnStock = productos_elaborados.find(
       (producto) => producto.id_producto_elaborado === fk_producto_elaborado
     );
 
+    // Si el producto se encuentra en el stock
     if (productoEnStock) {
       return productoEnStock.str_nombre_producto;
     } else {
       return "Sin producto";
     }
-  }
+  };
 
   //Obtener la fecha de elaboracion del producto
   obtenerElaboracion = (fk_producto_elaborado) => {
     const { productos_elaborados_sotck, detalles_productos } = this.state;
-  
+
     // Buscar el producto en el stock
     const productoEnStock = productos_elaborados_sotck.find(
       (producto) => producto.fk_producto_elaborado === fk_producto_elaborado
     );
-  
+
     // Si el producto se encuentra en el stock
     if (productoEnStock) {
-
       // Buscar el detalle del producto
       const detalleProducto = detalles_productos.find(
-        (detalle) => detalle.fk_producto_elaborado === productoEnStock.fk_producto_elaborado
+        (detalle) =>
+          detalle.fk_producto_elaborado ===
+          productoEnStock.fk_producto_elaborado
       );
-  
+
       // Si el detalle del producto se encuentra
       if (detalleProducto) {
         // Retornar la fecha de elaboracion
@@ -109,21 +113,26 @@ export class StockProductos extends Component {
     } else {
       return "Sin fecha";
     }
-  }
+  };
 
   //Obtener fecha vencimiento
   obtenerVencimiento = (fk_producto_elaborado) => {
     const { productos_elaborados_sotck, detalles_productos } = this.state;
-  
+
+    // Buscar el producto en el stock
     const productoEnStock = productos_elaborados_sotck.find(
       (producto) => producto.fk_producto_elaborado === fk_producto_elaborado
     );
-  
+
+    // Si el producto se encuentra en el stock
     if (productoEnStock) {
       const detalleProducto = detalles_productos.find(
-        (detalle) => detalle.fk_producto_elaborado === productoEnStock.fk_producto_elaborado
+        (detalle) =>
+          detalle.fk_producto_elaborado ===
+          productoEnStock.fk_producto_elaborado
       );
-  
+
+      // Si el detalle del producto se encuentra
       if (detalleProducto) {
         return detalleProducto.date_vencimiento;
       } else {
@@ -132,21 +141,26 @@ export class StockProductos extends Component {
     } else {
       return "Sin fecha";
     }
-  }
-  
+  };
+
   //Obtener iva
   obtenerIva = (fk_producto_elaborado) => {
     const { productos_elaborados_sotck, detalles_productos } = this.state;
-  
+
+    // Buscar el producto en el stock
     const productoEnStock = productos_elaborados_sotck.find(
       (producto) => producto.fk_producto_elaborado === fk_producto_elaborado
     );
-  
+
+    // Si el producto se encuentra en el stock
     if (productoEnStock) {
       const detalleProducto = detalles_productos.find(
-        (detalle) => detalle.fk_producto_elaborado === productoEnStock.fk_producto_elaborado
+        (detalle) =>
+          detalle.fk_producto_elaborado ===
+          productoEnStock.fk_producto_elaborado
       );
-  
+
+      // Si el detalle del producto se encuentra
       if (detalleProducto) {
         return detalleProducto.fl_iva;
       } else {
@@ -155,24 +169,28 @@ export class StockProductos extends Component {
     } else {
       return "Sin iva";
     }
-  }
-  
+  };
 
   //Filtrar por producto
   filtrarPorProducto = (nombreProducto) => {
     const { productos_elaborados_sotck } = this.state;
 
+    // Filtrar por nombre
     const productosFiltrados = productos_elaborados_sotck.filter((dato) => {
       const nombre = this.obtenerProducto(dato.fk_producto_elaborado);
       return nombre.toLowerCase().includes(nombreProducto.toLowerCase());
     });
 
+    // Actualizar el state
     this.setState({ productosFiltrados });
   };
 
   render() {
     const { productos_elaborados_sotck, productosFiltrados } = this.state;
-    const mostrarProductos = productosFiltrados.length > 0 ? productosFiltrados : productos_elaborados_sotck;
+    const mostrarProductos =
+      productosFiltrados.length > 0
+        ? productosFiltrados
+        : productos_elaborados_sotck;
 
     return (
       <>
@@ -181,6 +199,12 @@ export class StockProductos extends Component {
           <div className="row">
             <div className="col-sm-12 col-md-4">
               <p>Stock Productos Elaborados</p>
+              <Link to="/InformeProductosVencer" className="custom-link">
+                <button type="button" className="custom-button">
+                  {" "}
+                  Productos a vencer Informe
+                </button>
+              </Link>
             </div>
             <div className="col-sm-12 col-md-4">
               <div className="input-group">

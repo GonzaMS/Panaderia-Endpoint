@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import axios from "axios";
 import "../css/custom.css";
+import { Link } from "react-router-dom";
 
 import { Table, FormGroup, Label, Input, Button, Row, Col } from "reactstrap";
 
@@ -155,11 +156,8 @@ export class OrdenesProduccion extends Component {
 
   // Actualizar el estado de una orden
   async handleUpdateOrden(id, newState) {
-    const {
-      ordenes,
-      productos_elaborados_stock,
-      productos_elaborados
-    } = this.state;
+    const { ordenes, productos_elaborados_stock, productos_elaborados } =
+      this.state;
 
     try {
       const response = await axios.get(
@@ -179,7 +177,7 @@ export class OrdenesProduccion extends Component {
 
       if (newState) {
         //Creamos un movimiento_stock por cada producto elaborado que se haya producido con el tipo de movimiento 1 (entrada)
-        
+
         //Obtenemos la orden de produccion que se acaba de actualizar
         const orden = ordenes.find((orden) => orden.id_orden === id);
 
@@ -240,19 +238,19 @@ export class OrdenesProduccion extends Component {
             id_producto_stock: producto_stock.id_producto_stock,
             fk_producto_elaborado: producto_stock.fk_producto_elaborado,
             fk_stock: 2,
-            fl_cantidad: producto_stock.fl_cantidad + orden.fl_cantidad
+            fl_cantidad: producto_stock.fl_cantidad + orden.fl_cantidad,
           });
 
-            await axios.put(
-              `https://localhost:7089/api/productos_elaborados_stock/${producto_stock.id_producto_stock}`,
-              producto_stock_body_exist,
-              {
-                headers: {
-                  "Content-Type": "application/json",
-                },
-              }
-            )
-          }else {
+          await axios.put(
+            `https://localhost:7089/api/productos_elaborados_stock/${producto_stock.id_producto_stock}`,
+            producto_stock_body_exist,
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+        } else {
           //Si el producto elaborado no existe en el stock, lo creamos
           const producto_stock_body_noexist = JSON.stringify({
             fk_producto_elaborado: orden.fk_producto_elaborado,
@@ -333,6 +331,7 @@ export class OrdenesProduccion extends Component {
           (stock) => stock.fk_ingredientes === ingrediente.id_ingrediente
         );
 
+        //Si no hay stock del ingrediente, retornar true
         return (
           ingredienteStock &&
           ingredienteStock.fl_cantidad < ingrediente.cantidad_necesaria
@@ -340,16 +339,20 @@ export class OrdenesProduccion extends Component {
       }
     );
 
+    // Si hay ingredientes insuficientes, mostrar un alert y no hacer nada
     if (ingredientesInsuficientes.length > 0) {
+      console.log(ingredientesInsuficientes);
       const nombresIngredientes = ingredientesInsuficientes.map(
         (ingrediente) => {
           const nombreIngrediente = ingredientes.find(
-            (ingrediente) =>
-              ingrediente.id_ingrediente === ingrediente.id_ingrediente
+            (ingredienteInsuficiente) =>
+              ingredienteInsuficiente.id_ingrediente ===
+              ingrediente.id_ingrediente
           ).str_nombre_ingrediente;
           return nombreIngrediente;
         }
       );
+
       alert(
         `No hay suficiente stock de los siguientes ingredientes: ${nombresIngredientes.join(
           ", "
@@ -454,7 +457,6 @@ export class OrdenesProduccion extends Component {
       const ingredientes = detalles_recetas_filtradas.map(
         (detalle_receta) => detalle_receta.fk_ingrediente
       );
-
     }
   }
 
@@ -471,7 +473,7 @@ export class OrdenesProduccion extends Component {
     const ordenesFiltradas = this.filtrarPorEstado(ordenes, filtroEstado);
 
     return (
-      <div>
+      <div className="col-sm-12 col-md-12">
         <h1 className="title">Órdenes de producción</h1>
         <Row>
           <Col md={6}>
@@ -563,6 +565,12 @@ export class OrdenesProduccion extends Component {
             )}
           </tbody>
         </Table>
+        <Link to="/InformeProductosDia" className="custom-link">
+          <button type="button" className="custom-button">
+            {" "}
+            Productos por dia Informe
+          </button>
+        </Link>
       </div>
     );
   }

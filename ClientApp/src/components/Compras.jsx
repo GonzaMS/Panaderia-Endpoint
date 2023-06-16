@@ -12,6 +12,7 @@ import {
   FormGroup,
   ModalFooter,
 } from "reactstrap";
+
 export class Compras extends Component {
   state = {
     compras: [], //Array de compras
@@ -28,7 +29,26 @@ export class Compras extends Component {
   componentDidMount() {
     this.fetchCompras();
   }
-
+  fechaActual = new Date().toISOString().split("T")[0];
+  //funcion que guarda una compra
+  guardarCompra = async () => {
+    try {
+      const compras = {
+        fk_proveedor: 1,
+        fl_precio_total: 0.0,
+        date_compra: this.fechaActual,
+        str_numero_factura: null,
+      };
+      const comprasResponse = await axios.post("https://localhost:7089/api/compras", compras);
+      const compraGuardada = comprasResponse.data;
+      
+      console.log("Factura guardada:", compraGuardada);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  
+  
   fetchCompras() {
     try {
       //Compras
@@ -123,7 +143,7 @@ export class Compras extends Component {
         console.log(error);
       });
   };
-
+  
   //Obtener todos los detalles de compras relacionados con esa compra lo guarda en un array y obtenemos el nombre del ingrediente, la cantidad y el precio unitario
   obtenerDetallesCompra = (idCompra) => {
     const { detalles_de_compras, ingredientes } = this.state;
@@ -255,7 +275,7 @@ export class Compras extends Component {
 
             <div className="col-sm-12 col-md-4">
               <Link to="/FacturaCompra" className="custom-link">
-                <button type="button" className="custom-button">
+                <button type="button" className="custom-button" onClick={this.guardarCompra}>
                   {" "}
                   Nueva Compra
                 </button>
