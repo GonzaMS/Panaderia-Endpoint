@@ -8,7 +8,6 @@ export class InformeProductosDia extends Component {
     detalles_productos: [], // Estado para almacenar los productos elaborados
     productos_elaborados: [], // Estado para almacenar las recetas
     ordenes_produccion: [], // Estado para almacenar los detalles de las recetas
-    fechaFiltro: "", // Estado para almacenar la fecha del filtro
   };
 
   componentDidMount() {
@@ -93,24 +92,23 @@ export class InformeProductosDia extends Component {
   };
 
   //Funcion para filtrar por nombre de producto
-  filtrarPorFecha = () => {
-    const { fechaFiltro } = this.state;
-  
-    if (fechaFiltro === "") {
-      this.fetchData();
-      return;
+  filtrarPorFecha = (fecha) => {
+    if(fecha === ""){
+        this.fetchData();
     }
+    this.setState({ fechaFiltro: fecha });
+
+    console.log(fecha);
   
     // Realizar la llamada a la API con el filtro de fecha
     axios
-      .get(`https://localhost:7089/api/detalles_productos/fecha/${fechaFiltro}`)
+      .get(`https://localhost:7089/api/detalles_productos/fecha/${fecha}`)
       .then((response) => {
-        const detalles_productos = response.data;
-        console.log(detalles_productos);
-        this.setState({ detalles_productos });
+        this.setState({ detalles_productos: response.data });
+        console.log(response.data);
       })
       .catch((error) => {
-        console.error("Error al obtener los detalles de los productos:", error);
+        console.log(error);
       });
   };
 
