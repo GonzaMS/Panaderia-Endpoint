@@ -7,10 +7,10 @@ import {
 
 export class ProductosElaborados extends Component {
   state = {
-    productosElaborados: [],
-    recetas: [],
-    detallesRecetas: [],
-    ingredientes: [],
+    productosElaborados: [], // Estado para almacenar los productos elaborados
+    recetas: [], // Estado para almacenar las recetas
+    detallesRecetas: [], // Estado para almacenar los detalles de las recetas
+    ingredientes: [], // Estado para almacenar los ingredientes
     modalOpen: false, // Estado para controlar la visibilidad del modal
     modalAddOpen: false, // Estado para controlar la visibilidad del modal de agregar
     selectedReceta: null, // Estado para almacenar la receta seleccionada
@@ -20,7 +20,6 @@ export class ProductosElaborados extends Component {
     productoPrecio: "", // Estado para almacenar el precio del producto
   };
 
-  // Componente que se ejecuta cuando el componente ha sido montado
   componentDidMount() {
     this.fetchData();
   }
@@ -135,6 +134,7 @@ export class ProductosElaborados extends Component {
   //Funcion para agregar un producto elaborado
   addProductoElaborado = () => {
     const { newProductName, selectedRecetaId, productoPrecio } = this.state;
+
     const newProduct = {
       str_nombre_producto: newProductName,
       fk_recetas: parseInt(selectedRecetaId),
@@ -193,6 +193,8 @@ export class ProductosElaborados extends Component {
   obtenerDetallesReceta = (recetaId) => {
     const { detallesRecetas, ingredientes } = this.state;
     const detalles = [];
+
+    // Por cada detalle de receta, si el id de la receta es igual al id de la receta que se está buscando, se agrega al array de detalles
     detallesRecetas.forEach((detalle) => {
       if (detalle.fk_receta === recetaId) {
         const ingrediente = ingredientes.find(

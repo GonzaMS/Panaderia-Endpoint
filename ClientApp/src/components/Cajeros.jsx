@@ -21,10 +21,12 @@ export class Cajeros extends Component {
     newCajeroName: "", // state to store the new cajero name
   };
 
+  //Obtenemos los datos de la API
   componentDidMount() {
     this.fetchData();
   }
 
+  //Obtenemos los datos de la API
   fetchData() {
     axios
       .get("https://localhost:7089/api/cajeros")
@@ -37,12 +39,14 @@ export class Cajeros extends Component {
       });
   }
 
+  //Funciones para abrir y cerrar el modal
   toggleModal = () => {
     this.setState((prevState) => ({
       modalOpen: !prevState.modalOpen,
     }));
   };
 
+  //Funciones para agregar un nuevo cajero
   toggleAddModal = () => {
     this.setState((prevState) => ({
       modalAddOpen: !prevState.modalAddOpen,
@@ -50,10 +54,12 @@ export class Cajeros extends Component {
     }));
   };
   
+  //Nombre del cajero
   handleCajeroNameChange = (event) => {
     this.setState({ newCajeroName: event.target.value });
   };
 
+  //Funcion para agregar un nuevo cajero
   addCajero = () => {
     const { newCajeroName } = this.state;
     const newCajero = {
@@ -72,6 +78,7 @@ export class Cajeros extends Component {
       });
   };
 
+  //Funcion para eliminar un cajero
   deleteCajero = (cajeroId) => {
     axios
       .delete(`https://localhost:7089/api/cajeros/${cajeroId}`)
@@ -83,6 +90,7 @@ export class Cajeros extends Component {
       });
   };
 
+  //Funcion para filtrar por nombre
   filtrarPorCajero = (nombreCajero) => {
     if (nombreCajero.trim() === "") {
       this.fetchData();

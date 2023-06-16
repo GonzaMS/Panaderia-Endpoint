@@ -7,7 +7,7 @@ namespace Panaderia.Models
         [Key]
         public int id_orden { get; set; }
         [Required]
-        public int int_cantidad { get; set; }
+        public float fl_cantidad { get; set; }
         [Required]
         public int fk_producto_elaborado { get; set; }
         [Required]

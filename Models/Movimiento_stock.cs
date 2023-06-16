@@ -13,7 +13,7 @@ namespace Panaderia.Models
         [Required]
         public int fk_tipo_movimiento { get; set; }
         [Required]
-        public int int_cantidad { get; set; }
+        public float fl_cantidad { get; set; }
         [Required]
         public System.DateTime date_fecha_ingreso { get; set; }
 

@@ -69,7 +69,6 @@ export class StockProductos extends Component {
   //Obtener el nombre del producto elaborado
   obtenerProducto = (fk_producto_elaborado) => {
     const {productos_elaborados} = this.state;
-    console.log(fk_producto_elaborado)
 
 
     const productoEnStock = productos_elaborados.find(
@@ -77,7 +76,6 @@ export class StockProductos extends Component {
     );
 
     if (productoEnStock) {
-      console.log(productoEnStock);
       return productoEnStock.str_nombre_producto;
     } else {
       return "Sin producto";
@@ -88,18 +86,22 @@ export class StockProductos extends Component {
   obtenerElaboracion = (fk_producto_elaborado) => {
     const { productos_elaborados_sotck, detalles_productos } = this.state;
   
+    // Buscar el producto en el stock
     const productoEnStock = productos_elaborados_sotck.find(
       (producto) => producto.fk_producto_elaborado === fk_producto_elaborado
     );
   
+    // Si el producto se encuentra en el stock
     if (productoEnStock) {
-      console.log(productoEnStock);
+
+      // Buscar el detalle del producto
       const detalleProducto = detalles_productos.find(
-        (detalle) => detalle.id_detalle_producto === productoEnStock.fk_producto_elaborado
+        (detalle) => detalle.fk_producto_elaborado === productoEnStock.fk_producto_elaborado
       );
   
+      // Si el detalle del producto se encuentra
       if (detalleProducto) {
-        console.log(detalleProducto);
+        // Retornar la fecha de elaboracion
         return detalleProducto.date_elaboracion;
       } else {
         return "Sin fecha";
@@ -119,7 +121,7 @@ export class StockProductos extends Component {
   
     if (productoEnStock) {
       const detalleProducto = detalles_productos.find(
-        (detalle) => detalle.id_detalle_producto === productoEnStock.fk_producto_elaborado
+        (detalle) => detalle.fk_producto_elaborado === productoEnStock.fk_producto_elaborado
       );
   
       if (detalleProducto) {
@@ -142,7 +144,7 @@ export class StockProductos extends Component {
   
     if (productoEnStock) {
       const detalleProducto = detalles_productos.find(
-        (detalle) => detalle.id_detalle_producto === productoEnStock.fk_producto_elaborado
+        (detalle) => detalle.fk_producto_elaborado === productoEnStock.fk_producto_elaborado
       );
   
       if (detalleProducto) {

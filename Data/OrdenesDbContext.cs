@@ -17,8 +17,8 @@ namespace Panaderia.Data
             modelBuilder.Entity<Ordenes_produccion>()
                         .HasKey(o => o.id_orden);
             modelBuilder.Entity<Ordenes_produccion>()
-                        .Property(o => o.int_cantidad)
-                        .HasColumnName("int_cantidad");
+                        .Property(o => o.fl_cantidad)
+                        .HasColumnName("fl_cantidad");
             modelBuilder.Entity<Ordenes_produccion>()
                         .Property(o => o.fk_producto_elaborado)
                         .HasColumnName("fk_producto_elaborado");

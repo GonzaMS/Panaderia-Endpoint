@@ -42,7 +42,11 @@ namespace Panaderia.Controllers
             _context.Movimiento_stock.Add(Movimiento_stock);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetMovimiento_stock), new { id = Movimiento_stock.id_transferencia_stock }, Movimiento_stock);
+            return CreatedAtAction(
+                "GetMovimiento_stock",
+                new { id = Movimiento_stock.id_transferencia_stock },
+                Movimiento_stock
+            );
         }
 
         [HttpPut("{id}")]

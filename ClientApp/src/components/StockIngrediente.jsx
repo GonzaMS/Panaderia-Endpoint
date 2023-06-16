@@ -7,19 +7,20 @@ import { Table, Container } from "reactstrap";
 
 export class StockIngrediente extends Component {
   state = {
-    stocks: [],
-    ingredientes_stock: [],
-    ingredientes: [],
-    marcas_ingredientes: [],
-    ingredientesFiltrados: [],
-    modalActualizar: false,
-    modalInsertar: false,
+    stocks: [], // Estado de los stocks
+    ingredientes_stock: [], // Estado de los ingredientes en stock
+    ingredientes: [], // Estado de los ingredientes
+    marcas_ingredientes: [], // Estado de las marcas de los ingredientes
+    ingredientesFiltrados: [], // Estado de los ingredientes filtrados
+    modalActualizar: false, // Estado del modal actualizar
+    modalInsertar: false, // Estado del modal insertar
   };
 
   componentDidMount() {
     this.fetchDatos();
   }
 
+  // Obtener los datos de la API
   fetchDatos = () => {
     try {
       //Obtener el stock de productos
@@ -70,15 +71,18 @@ export class StockIngrediente extends Component {
   obtenerMarca = (fk_ingredientes) => {
     const { marcas_ingredientes, ingredientes } = this.state;
   
+    // Buscar el ingrediente en el stock de ingredientes
     const ingredienteEnStock = ingredientes.find(
       (ingrediente) => ingrediente.id_ingrediente === fk_ingredientes
     );
   
+    // Si el ingrediente existe y tiene una marca
     if (ingredienteEnStock && ingredienteEnStock.fk_marca_ingrediente) {
       const marcaEnStock = marcas_ingredientes.find(
         (marca) => marca.id_marca_ingrediente === ingredienteEnStock.fk_marca_ingrediente
       );
   
+      // Si la marca existe
       if (marcaEnStock) {
         return marcaEnStock.str_nombre_marca;
       }
@@ -92,10 +96,12 @@ export class StockIngrediente extends Component {
   obtenerIngrediente = (fk_ingredientes) => {
     const { ingredientes } = this.state;
 
+    // Buscar el ingrediente en el stock de ingredientes
     const ingredienteEnStock = ingredientes.find(
       (ingrediente) => ingrediente.id_ingrediente === fk_ingredientes
     );
 
+    // Si el ingrediente existe
     if (ingredienteEnStock) {
       return ingredienteEnStock.str_nombre_ingrediente;
     } else {
@@ -107,6 +113,7 @@ export class StockIngrediente extends Component {
   filtrarPorIngrediente = (nombreIngrediente) => {
     const { ingredientes_stock } = this.state;
 
+    // Filtrar por nombre de ingrediente
     const ingredientesFiltrados = ingredientes_stock.filter((dato) => {
       const nombre = this.obtenerIngrediente(dato.fk_ingredientes);
       return nombre.toLowerCase().includes(nombreIngrediente.toLowerCase());

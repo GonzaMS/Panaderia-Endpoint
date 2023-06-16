@@ -117,8 +117,8 @@ namespace Panaderia.Data
                         .Property(m => m.fk_tipo_movimiento)
                         .HasColumnName("fk_tipo_movimiento");
             modelBuilder.Entity<Movimiento_stock>()
-                        .Property(m => m.int_cantidad)
-                        .HasColumnName("int_cantidad");
+                        .Property(m => m.fl_cantidad)
+                        .HasColumnName("fl_cantidad");
             modelBuilder.Entity<Movimiento_stock>()
                         .Property(m => m.date_fecha_ingreso)
                         .HasColumnName("date_fecha_ingreso");
