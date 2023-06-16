@@ -1,7 +1,5 @@
 using MySqlConnector;
 using Panaderia.Context;
-using Panaderia.DatabaseTriggers;
-
 namespace Panaderia.Main
 {
     public class Program

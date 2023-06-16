@@ -88,6 +88,20 @@ namespace Panaderia.Controllers
             return detalles_productos;
         }
 
+        //Buscar por fecha
+        [HttpGet("fecha/{fecha}")]
+        public async Task<ActionResult<IEnumerable<Detalles_Productos>>> GetDetalles_ProductosFecha(DateTime fecha)
+        {
+            var detalles_productos = await _context.Detalles_productos.Where(d => d.date_elaboracion == fecha).ToListAsync();
+
+            if (detalles_productos == null)
+            {
+                return NotFound();
+            }
+
+            return detalles_productos;
+        }
+
         private bool Detalles_ProductosExists(int id)
         {
             return _context.Detalles_productos.Any(e => e.id_detalle_producto == id);

@@ -81,23 +81,6 @@ export const FacturaCompra = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const guardarFactura = async () => {
-    try {
-      const factura = {
-        
-      };
-
-      const facturasResponse = await axios.post(
-        
-      );
-      const facturaGuardada = facturasResponse.data;
-
-      console.log("Factura guardada:", facturaGuardada);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   const handleAgregarItem = () => {
     const nuevoItem = {
       proveedor: proveedorSeleccionado,
@@ -266,7 +249,7 @@ export const FacturaCompra = () => {
             <button
               type="button"
               className="btn btn-outline-success facturaAgg"
-              onClick={guardarFactura}
+              //ruta de compras
             >
               Guardar
             </button>
