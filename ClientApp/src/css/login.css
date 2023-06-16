@@ -1,0 +1,106 @@
+* {
+    margin: 0;
+    box-sizing: border-box;
+    font-family: "CustomFont";
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+
+}
+
+.user-image img {
+    width: 100px;
+    height: 80px;
+    padding-right: 1vh;
+    padding-left: 10px;
+    margin-left: 30%;
+
+}
+
+.bodyy {
+    height: 100vh;
+    width: 100%;
+    padding-top: 10%;
+    padding-left: 18%;
+    justify-content: center;
+    align-items: center;
+    background-image: url("/src/components/imagen/fondologin.png");
+    background-size: cover;
+}
+
+.cover {
+    background-color: lightgray;
+    width: 30em;
+    height: 30em;
+    position: relative;
+    box-shadow: 0 0.188em 1.550em rgb(156, 156, 156);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+}
+
+input {
+    border: none;
+    background-color: rgb(229, 226, 226);
+    height: 45px;
+    width: 110%;
+    border-radius: 0.15em;
+    text-align: center;
+    padding: 1em;
+
+}
+
+h1 {
+    position: relative;
+    font-size: medium;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+.input-container {
+    position: center;
+    padding-right: 8%;
+    padding-bottom: 0px;
+}
+
+
+.input-user {
+    background-image: url('/src/components/imagen/ug.webp');
+    background-size: 35px;
+    background-repeat: no-repeat;
+    background-position: 5px center;
+    padding-left: 30px;
+    font-size: 15px;
+    box-shadow: 0 0.188em 1.550em rgb(156, 156, 156);
+}
+
+.input-lock {
+    background-image: url('/src/components/imagen/lock.png');
+    background-size: 35px;
+    background-repeat: no-repeat;
+    background-position: 5px center;
+    padding-left: 30px;
+    font-size: 15px;
+    box-shadow: 0 0.188em 1.550em rgb(156, 156, 156);
+}
+
+
+
+
+.mi-boton {
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    font-weight: bold;
+    border-radius: 50px;
+    font-size: medium;
+    width: 100px;
+    height: 30px;
+    background-color: burlywood;
+    border: none;
+    padding: none;
+
+}
+
+button:hover {
+    background-color: red;
+    /* Cambiar el color de fondo del botón */
+    color: white;
+    /* Cambiar el color del texto del botón */
+}

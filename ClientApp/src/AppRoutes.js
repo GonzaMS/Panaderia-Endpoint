@@ -21,12 +21,9 @@ import { InformeProductosDia } from "./components/InformeProductosDia";
 import { InformeProductosVencer } from "./components/InformeProductosVencer";
 
 //import { Home } from "./components/Home";
+import { Login } from "./components/Login";
 
 const AppRoutes = [
-  //{
-  // index: true,
-  //element: <Home />,
-  //},
   {
     path: "/Proveedores",
     element: <Proveedores />,

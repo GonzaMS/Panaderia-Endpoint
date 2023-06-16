@@ -18,8 +18,10 @@ export class Ventas extends Component {
     factura: [],
     detalles_facturas: [],
     productos_elaborados: [],
-    fechaFiltro: "",
+    fechaFiltro: "", // Estado para almacenar la fecha de filtro
+    productosVendidos: [],
   };
+  
 
   componentDidMount() {
     this.obtenerDatos();
@@ -39,16 +41,6 @@ export class Ventas extends Component {
       });
   };
 
-  mostrarModalVenta = (dato) => {
-    this.setState({
-      factura: dato,
-      modalVenta: true,
-    });
-  };
-
-  cerrarModalVenta = () => {
-    this.setState({ modalVenta: false });
-  };
 
   obtenerNombresClientes = () => {
     const facturas = this.state.data;
@@ -71,7 +63,57 @@ export class Ventas extends Component {
     });
   };
 
-  //Cambiar
+  obtenerCantidadProducto = (facturaId) => {
+    axios
+      .get(
+        `https://localhost:7089/api/detalles_facturas?fk_factura=${facturaId}`
+      )
+      .then((response) => {
+        const detalles = response.data;
+        const detalleFactura = detalles.find(
+          (detalle) => detalle.fk_factura === facturaId
+        );
+        if (detalleFactura) {
+          const cantidad = detalleFactura.int_cantidad;
+          this.setState((prevState) => ({
+            factura: {
+              ...prevState.factura,
+              cantidad: cantidad,
+            },
+          }));
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+
+  buscarDetallesFactura = async (idFactura) => {
+    try {
+      const response = await axios.get(
+        `https://localhost:7089/api/detalles_facturas?fk_factura=${idFactura}`
+      );
+      const detalles = response.data;
+      const nombresProductos = [];
+  
+      for (const detalle of detalles) {
+        const fkProducto = detalle.fk_producto;
+        const productoResponse = await axios.get(
+          `https://localhost:7089/api/productos_elaborados?id_producto_elaborado=${fkProducto}`
+        );
+        const productoElaborado = productoResponse.data;
+        const nombreProducto = productoElaborado.nombre; // Asegúrate de tener el nombre del campo correcto
+        
+        nombresProductos.push(nombreProducto);
+      }
+  
+      this.setState({ productosVendidos: nombresProductos });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  
+  
   filtrarPorCliente = (valorBusqueda) => {
     axios
       .get(
@@ -84,18 +126,15 @@ export class Ventas extends Component {
         console.error(error);
       });
   };
-
-  //Cambiar
   filtrarPorFecha = (fecha) => {
     if (fecha === "") {
-      this.obtenerDatos(); // Obtener todos los datos si la fecha está vacía
+      this.obtenerDatos();
     } else {
       this.setState({ fechaFiltro: fecha });
   
-      const fechaFormateada = new Date(fecha).toISOString().split('T')[0];
-  
+      // Realizar la llamada a la API con el filtro de fecha
       axios
-        .get(`https://localhost:7089/api/facturas?date_fecha_emision=${fechaFormateada}`)
+        .get(`https://localhost:7089/api/facturas?date_fecha_emision=${fecha}`)
         .then((response) => {
           this.setState({ data: response.data });
         })
@@ -104,6 +143,27 @@ export class Ventas extends Component {
         });
     }
   };
+  
+
+
+  mostrarModalVenta = (dato) => {
+    this.setState(
+      {
+        factura: dato,
+        modalVenta: true,
+      },
+      () => {
+        this.buscarDetallesFactura(dato.id_factura);
+        this.obtenerCantidadProducto(dato.id_factura);
+      }
+    );
+  };
+  
+
+  cerrarModalVenta = () => {
+    this.setState({ modalVenta: false });
+  };
+
 
   render() {
     return (
@@ -116,37 +176,9 @@ export class Ventas extends Component {
               <p>Venta</p>
             </div>
             <div className="col-sm-12 col-md-5">
-              <div className="input-group">
-                <input
-                  type="search"
-                  className="form-control rounded"
-                  placeholder="Buscar por cliente"
-                  aria-label="Search"
-                  aria-describedby="search-addon"
-                  onChange={(e) => this.filtrarPorCliente(e.target.value)}
-                />
-                <input
-                  type="date"
-                  className="form-control"
-                  placeholder="Filtrar por fecha"
-                  onChange={(e) => this.filtrarPorFecha(e.target.value)}
-                />
-                <span className="input-group-text" id="basic-addon2">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    fill="currentColor"
-                    className="bi bi-search"
-                    viewBox="0 0 16 16"
-                  >
-                    {/* Path del ícono de búsqueda */}
-                  </svg>
-                </span>
-              </div>
             </div>
             <div className="col-sm-12 col-md-4">
-              <Link to="/FacturaVentas" className="custom-link">
+              <Link to="/FacturaVenta" className="custom-link">
                 <button type="button" className="custom-button">
                   Nueva Venta
                 </button>
@@ -163,44 +195,47 @@ export class Ventas extends Component {
               </tr>
             </thead>
             <tbody>
-              {this.state.data.map((dato) => (
-                <tr key={dato.id_factura}>
-                  <td>{dato.str_nombre_cliente}</td>
-                  <td>{dato.date_fecha_emision}</td>
-                  <td>{dato.fl_total_pagar}</td>
-                  <td>
-                    <button
-                      type="button"
-                      className="btn btn-outline-secondary"
-                      onClick={() => this.mostrarModalVenta(dato)}
+            {this.state.data.map((dato) => (
+              <tr key={dato.id_factura}>
+                <td>{dato.str_nombre_cliente}</td>
+                <td>{dato.date_fecha_emision}</td>
+                <td>{dato.fl_total_pagar}</td>
+                <td>
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    onClick={() => this.mostrarModalVenta(dato)}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      fill="currentColor"
+                      className="bi bi-pencil"
+                      viewBox="0 0 16 16"
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        fill="currentColor"
-                        className="bi bi-pencil"
-                        viewBox="0 0 16 16"
-                      >
-                        {/* Path del ícono de lápiz */}
-                      </svg>
-                    </button>{" "}
-                  </td>
-                </tr>
-              ))}
+                      {/* Path del ícono de lápiz */}
+                    </svg>
+                  </button>{" "}
+                </td>
+              </tr>
+                ))}
+
             </tbody>
           </Table>
         </Container>
 
         <Modal isOpen={this.state.modalVenta}>
-          <ModalHeader>
+        <ModalHeader>
+          <div>
             <h4>Detalles de la Factura</h4>
-          </ModalHeader>
+          </div>
+        </ModalHeader>
+
           <ModalBody>
             <h5>Cliente: {this.state.factura.str_nombre_cliente}</h5>
             <h5>Fecha: {this.state.factura.date_fecha_emision}</h5>
-            <h5>Producto: {this.state.factura.str_nombre_producto}</h5>
-            <h5>Precio Unitario: {this.state.factura.fl_precio_unitario}</h5>
+            <h5>Cantidad: {this.state.factura.cantidad}</h5>
             <h5>Monto Total: {this.state.factura.fl_total_pagar}</h5>
           </ModalBody>
           <ModalFooter>
@@ -217,4 +252,3 @@ export class Ventas extends Component {
     );
   }
 }
-

@@ -13,11 +13,17 @@ export const FacturaCompra = () => {
   const [total, setTotal] = useState(0);
   const [datosIngredientes, setDatosIngredientes] = useState([]);
   const [datosProveedores, setDatosProveedores] = useState([]);
+  const [datosCompras, setDatosCompras] = useState([]);
+  const {datosIngredientesStock, setDatosIngredientesStock} = useState([]);
+  const {datosIngredientes_stock,setDatosIngredientes_stock} = useState("");
   const [fechaActual, setFechaActual] = useState("");
+  const [ultimaCompra, setUltimaCompra] = useState("");
 
   useEffect(() => {
     obtenerIngredientes();
     obtenerProveedores();
+    obtenerCompra();
+    //obtenerIngredientesStock();
   }, []);
 
   const obtenerIngredientes = async () => {
@@ -34,8 +40,6 @@ export const FacturaCompra = () => {
       }));
 
       setDatosIngredientes(datosIngredientes);
-
-      console.log(datosIngredientes);
     } catch (error) {
       console.error(error);
     }
@@ -61,6 +65,53 @@ export const FacturaCompra = () => {
     }
   };
 
+  const obtenerCompra = async () => {
+    try {
+      const response = await axios.get("https://localhost:7089/api/compras");
+      const compras = response.data;
+
+      const datosCompras = compras.map((compras) => ({
+        id_compra: compras.id_compra,
+        fk_proveedor: compras.fk_proveedor,
+        fl_precio_total: compras.fl_precio_total,
+        date_compra: compras.date_compra,
+        str_numero_factura: compras.str_numero_factura,
+      }));
+
+      setDatosCompras(datosCompras);
+
+      console.log(datosCompras);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  /*
+  const obtenerIngredientesStock = async () => {
+    try {
+      const response = await axios.get("https://localhost:7089/api/ingredientes_stock");
+      const ingredientes_stock = response.data;
+
+      const datosIngredientes_stock = ingredientes_stock.map((ingredientes) => ({
+        id_ingrediente_stock: ingredientes_stock.id_ingrediente_stock,
+        fk_producto_elaborado: ingredientes_stock.fk_producto_elaborado,
+        fk_stock: ingredientes_stock.fk_stock,
+        fl_cantidad: ingredientes_stock.fl_cantidad,
+      }));
+
+      setDatosIngredientes_stock(datosIngredientes_stock);
+
+      console.log(datosCompras);
+    } catch (error) {
+      console.error(error);
+    }
+  };*/
+
+  const nroFacturaAleatorio = () => {
+    const nroFactura = Math.floor(Math.random() * 1000000000);
+    return nroFactura;
+  };
+
   useEffect(() => {
     const obtenerFechaActual = () => {
       const fechaActual = new Date();
@@ -82,7 +133,6 @@ export const FacturaCompra = () => {
   }, []);
 
   const handleAgregarItem = () => {
-
     const nuevoItem = {
       proveedor: proveedorSeleccionado,
       ingrediente: ingredienteSeleccionado,
@@ -91,39 +141,131 @@ export const FacturaCompra = () => {
     };
 
     //Comprobamos el nombre del nuevoItem con los items existentes
-
     const nombreItem = nuevoItem.ingrediente;
     console.log(nombreItem);
 
-    const itemExistente = items.find(item => item.ingrediente === nombreItem);
+    console.log(datosIngredientes);
 
-    console.log(itemExistente);
+    //Buscamos si existe el item comparando el nombre con el nombre en datosIngredientes
+    const itemExistente = datosIngredientes.find(
+      (ingrediente) => ingrediente.nombre === nombreItem
+    );
 
-    if(itemExistente){
-      //Retornamos el item existente con el id del item existente
-      const itemExistenteConId = {
-        ...itemExistente,
-        id: itemExistente.id
-      }
+    console.log(itemExistente.id);
 
-      console.log(itemExistenteConId);
+    //Obtenemos todas las compras
+    const compras = datosCompras;
 
+    //Buscamos la ultima compra en la lista de compras
+    const ultimaCompra = compras[compras.length - 1];
+
+    if (itemExistente) {
+      //Hacemos un detalle de compra con el item existente
+      const detalleCompra = {
+        fk_compra: ultimaCompra.id_compra,
+        fk_ingrediente: itemExistente.id,
+        fk_stock: 1,
+        int_cantidad: parseInt(cantidad),
+        fl_precio_unidad: parseFloat(precioUnitario),
+        fl_iva: 0.05,
+      };
+
+      console.log(detalleCompra);
+
+      axios
+        .post("https://localhost:7089/api/detalles_de_compras", detalleCompra)
+        .then((response) => {
+          console.log(response);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     }
-    
-    console.log(items);
 
     setItems([...items, nuevoItem]);
     const Total = parseFloat(precioUnitario) * parseFloat(cantidad);
-    setTotal(prevTotal => prevTotal + Total);
+    setTotal((prevTotal) => prevTotal + Total);
     // Restablecer los valores de entrada a su estado inicial
-    setProveedorSeleccionado("");
     setIngredienteSeleccionado("");
     setCantidad("");
     setPrecioUnitario("");
     setImpuesto("");
   };
 
-  
+  const handleGuardarCompra = () => {
+    //Obtenemos todas las compras
+    const compras = datosCompras;
+
+    console.log(compras);
+
+
+    const nuevoItem = {
+      proveedor: proveedorSeleccionado,
+      fl_precio_total: total,
+    };
+
+    console.log(nuevoItem);
+
+    //Comprobamos el nombre del proveedor de nuevoItem con los proveedores
+    const nombreProveedor = nuevoItem.proveedor;
+    console.log(nombreProveedor);
+
+    //Buscamos si existe el proveedor comparando el nombre con el nombre en datosProveedores
+    const proveedorExistente = datosProveedores.find(
+      (proveedor) => proveedor.nombre === nombreProveedor
+    );
+
+    console.log(proveedorExistente.id);
+
+    //Obtenemos el precio total
+    const precioTotal = nuevoItem.fl_precio_total;
+
+    console.log(precioTotal);
+
+    //Generamos el numero de factura aleatorio
+    const numeroFactura = nroFacturaAleatorio().toString();
+
+    //Hacemos un put sobre la ultima compra para actualizar el proveedor y el precio total
+    const ultimaCompra = datosCompras[datosCompras.length - 1];
+
+    const compraActualizada = JSON.stringify({
+      id_compra: ultimaCompra.id_compra,
+      fk_proveedor: proveedorExistente.id,
+      fl_precio_total: precioTotal,
+      date_compra: fechaActual,
+      str_numero_factura: numeroFactura,
+    });
+
+    console.log(compraActualizada);
+
+    axios.put(
+      `https://localhost:7089/api/compras/${ultimaCompra.id_compra}`,
+      compraActualizada,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    //Agregamos los ingredientes seleccionados al ingredientes_stock
+    const ingredientesSeleccionados = items;
+
+    console.log(ingredientesSeleccionados);
+
+    //Obtenemos todos los ingredientes_stock
+    const ingredientes_stock = datosIngredientes_stock;
+
+    console.log(ingredientes_stock);
+
+    //Buscamos lo detalles_de_compras de la ultima compra y guardamos la cantidad y el id del ingrediente
+
+    
+
+
+
+  };
+
   return (
     <div>
       <div>
@@ -187,10 +329,7 @@ export const FacturaCompra = () => {
                     >
                       <option value="">Seleccionar ingrediente</option>
                       {datosIngredientes.map((ingrediente) => (
-                        <option
-                          key={ingrediente.id}
-                          value={ingrediente.nombre}
-                        >
+                        <option key={ingrediente.id} value={ingrediente.nombre}>
                           {ingrediente.nombre}
                         </option>
                       ))}
@@ -214,18 +353,17 @@ export const FacturaCompra = () => {
                   />
                 </div>
               </div>
-               
             </div>
-             <div className="form-group">
-                  <label className="precioP-label">Precio Unitario:</label>
-                  <input
-                    type="text"
-                    style={{ width: "300px" }}
-                    className="form-control cantidadP"
-                    value={precioUnitario}
-                    onChange={(e) => setPrecioUnitario(e.target.value)}
-                  />
-              </div>
+            <div className="form-group">
+              <label className="precioP-label">Precio Unitario:</label>
+              <input
+                type="text"
+                style={{ width: "300px" }}
+                className="form-control cantidadP"
+                value={precioUnitario}
+                onChange={(e) => setPrecioUnitario(e.target.value)}
+              />
+            </div>
           </div>
         </div>
         <button
@@ -263,15 +401,14 @@ export const FacturaCompra = () => {
             className="form-control totalP"
             value={total}
             readOnly
-         />
-
+          />
         </div>
         <div className="col-sm-12 col-md-4">
-          <Link to="" className="custom-link">
+          <Link to="/Compras" className="custom-link">
             <button
               type="button"
               className="btn btn-outline-success facturaAgg"
-              //ruta de compras
+              onClick={handleGuardarCompra}
             >
               Guardar
             </button>
