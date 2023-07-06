@@ -18,6 +18,7 @@ export class Clientes extends Component {
     facturas: [],
     modalActualizar: false,
     modalInsertar: false,
+    disable: false,
     form: {
       str_nombre_cliente: "",
       str_ruc_cliente: "",
@@ -132,7 +133,6 @@ export class Clientes extends Component {
     if (facturasCliente.length > 0) {
       console.log("El cliente tiene facturas");
 
-
       //Buscamos todas las facturas del cliente
       const facturasCliente = facturas.filter(
         (factura) => factura.fk_cliente === dato.id_cliente
@@ -188,7 +188,6 @@ export class Clientes extends Component {
             console.error("Error al eliminar el cliente:", error);
           });
       }
-
     } else {
       console.log("El cliente no tiene facturas");
       var opcion = window.confirm(
@@ -220,15 +219,24 @@ export class Clientes extends Component {
       str_direccion_cliente: this.state.form.str_direccion_cliente,
     };
 
+    // Deshabilitar el botón de agregar
+    this.setState({ disable: true });
+
     axios
       .post("https://localhost:7089/api/clientes", nuevoCliente)
       .then((response) => {
         const clienteGuardado = response.data;
         const lista = [...this.state.clientes, clienteGuardado];
         this.setState({ modalInsertar: false, clientes: lista });
+
+        // Habilitar el botón de agregar nuevamente
+        this.setState({ disable: false });
       })
       .catch((error) => {
         console.error("Error al guardar el cliente:", error);
+
+        // Habilitar el botón de agregar nuevamente
+        this.setState({ disable: false });
       });
 
     console.log(nuevoCliente);
@@ -506,12 +514,13 @@ export class Clientes extends Component {
 
           <ModalFooter>
             <button
-              type="button"
-              className="btn btn-outline-success"
-              onClick={() => this.insertar()}
+              className="btn btn-success"
+              onClick={this.insertar}
+              disabled={this.state.disable}
             >
-              Guardar
+              Agregar cliente
             </button>
+
             <button
               type="button"
               className="btn btn-outline-danger"

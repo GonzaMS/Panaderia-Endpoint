@@ -18,6 +18,8 @@ namespace Panaderia.Models
         public System.DateTime date_hora_entrada { get; set; }
         [Required]
         public System.DateTime date_hora_salida { get; set; }
+        [Required]
+        public Boolean bool_estado_caja { get; set; }
 
         public virtual Cajas? Cajas { get; set; }
         public virtual Cajeros? Cajeros { get; set; }

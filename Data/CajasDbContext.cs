@@ -50,7 +50,9 @@ namespace Panaderia.Data
             modelBuilder.Entity<Detalles_cajas>()
                         .Property(d => d.date_hora_salida)
                         .HasColumnName("date_hora_salida");
-
+            modelBuilder.Entity<Detalles_cajas>()
+                        .Property(d => d.bool_estado_caja)
+                        .HasColumnName("bool_estado_caja");
 
             //Relaciones entre tablass
 

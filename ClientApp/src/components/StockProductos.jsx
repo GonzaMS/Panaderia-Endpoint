@@ -134,7 +134,7 @@ export class StockProductos extends Component {
 
       // Si el detalle del producto se encuentra
       if (detalleProducto) {
-        return detalleProducto.date_vencimiento;
+        return detalleProducto.date_vencimiento.substring(0, 10);
       } else {
         return "Sin fecha";
       }

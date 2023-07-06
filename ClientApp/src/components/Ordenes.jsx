@@ -130,6 +130,7 @@ export class Ordenes extends Component {
     const newItem = {
       id_producto_elaborado: producto.id_producto_elaborado,
       str_nombre_producto: producto.str_nombre_producto,
+      fk_receta: producto.fk_recetas,
       cantidad: Number(cantidad),
     };
 
@@ -156,8 +157,6 @@ export class Ordenes extends Component {
   async handleSubmit(event, items) {
     event.preventDefault();
     const {
-      cantidad,
-      producto_elaborado,
       recetas,
       detalles_recetas,
       productos_elaborados,
@@ -192,25 +191,41 @@ export class Ordenes extends Component {
 
     console.log(detallesRecetasFiltrados);
 
- // Multiplicar la cantidad de cada ingrediente de cada producto elaborado seleccionado en items
-    const ingredientesNecesarios = detallesRecetasFiltrados.map((detalle) => {
+    // Multiplicar la cantidad de cada ingrediente de cada producto elaborado seleccionado en items
+    const ingredientesNecesarios = [];
+    detallesRecetasFiltrados.forEach((detalle) => {
       const ingrediente = ingredientes.find(
         (ingrediente) => ingrediente.id_ingrediente === detalle.fk_ingrediente
       );
-  
+
       console.log(ingrediente);
-      //Error aca
-      console.log(detalle.fl_cantidad * items.find(item => item.id_producto_elaborado === detalle.fk_producto_elaborado).cantidad);
-  
-      return {
-        id_ingrediente: ingrediente.id_ingrediente,
-        cantidad_necesaria: detalle.fl_cantidad * items.find(item => item.id_producto_elaborado === detalle.fk_producto_elaborado).cantidad,
-      };
+
+      const cantidadNecesaria =
+        detalle.fl_cantidad *
+        items.find((item) => item.fk_receta === detalle.fk_receta).cantidad;
+
+      console.log(cantidadNecesaria);
+
+      // Buscar si el ingrediente ya existe en ingredientesNecesarios
+      const index = ingredientesNecesarios.findIndex(
+        (ingredienteNecesario) =>
+          ingredienteNecesario.id_ingrediente === ingrediente.id_ingrediente
+      );
+
+      // Si el ingrediente ya existe, sumar las cantidades
+      if (index !== -1) {
+        ingredientesNecesarios[index].cantidad_necesaria += cantidadNecesaria;
+      } else {
+        // Si el ingrediente no existe, agregarlo al arreglo
+        ingredientesNecesarios.push({
+          id_ingrediente: ingrediente.id_ingrediente,
+          cantidad_necesaria: cantidadNecesaria,
+        });
+      }
     });
-  
+
     console.log(ingredientesNecesarios);
 
-    /*
     // Verificar si hay stock suficiente de cada ingrediente en ingredientes_stock
     const ingredientesInsuficientes = ingredientesNecesarios.filter(
       (ingrediente) => {
@@ -250,12 +265,18 @@ export class Ordenes extends Component {
       );
       return;
     }
+
     // Si hay stock suficiente, restar la cantidad de cada ingrediente en ingredientes_stock
     ingredientesNecesarios.forEach((ingrediente) => {
       const ingredienteStock = ingredientes_stock.find(
         (stock) => stock.fk_ingredientes === ingrediente.id_ingrediente
       );
+
+      console.log(ingredienteStock);
+
       ingredienteStock.fl_cantidad -= ingrediente.cantidad_necesaria;
+
+      console.log(ingredienteStock);
 
       const body = JSON.stringify(ingredienteStock);
 
@@ -271,20 +292,33 @@ export class Ordenes extends Component {
     });
 
     try {
-      const response = await axios.post(
-        "https://localhost:7089/api/ordenes_produccion",
-        {
-          fl_cantidad: cantidad,
-          fk_producto_elaborado: producto_elaborado,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
+      // Iterar sobre cada producto elaborado en items
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+    
+        // Obtener la cantidad y el id_producto_elaborado del elemento actual
+        const { cantidad, id_producto_elaborado } = item;
+    
+        const response = await axios.post(
+          "https://localhost:7089/api/ordenes_produccion",
+          {
+            fl_cantidad: cantidad,
+            fk_producto_elaborado: id_producto_elaborado,
+            bool_estado_orden: false
           },
-        }
-      );
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+    
+        // Realizar el manejo de la respuesta aquí si es necesario
+      }
+    
+      // Resto del código
       this.setState({
-        cantidad: 0,
+        cantidad: "",
         producto_elaborado: "",
         recetas: [],
         detalles_recetas: [],
@@ -293,10 +327,8 @@ export class Ordenes extends Component {
       });
       this.fetchData();
     } catch (error) {
-      alert(error);
       console.log(error);
     }
-    */
   }
 
   // Controlar los cambios en los inputs

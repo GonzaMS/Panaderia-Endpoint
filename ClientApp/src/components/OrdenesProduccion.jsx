@@ -114,6 +114,10 @@ export class OrdenesProduccion extends Component {
         }
       );
 
+      if(data.bool_estado_orden && newState === false){
+        return;
+      }
+
       if (newState) {
         //Creamos un movimiento_stock por cada producto elaborado que se haya producido con el tipo de movimiento 1 (entrada)
 
@@ -214,6 +218,17 @@ export class OrdenesProduccion extends Component {
     }
   }
 
+  //Controlar los cambios en los inputs
+  handleInputChange(event) {
+    const { name, value } = event.target;
+    this.setState({ [name]: value });
+  }
+
+  //Controlar los cambios en el filtro por estado
+  handleFiltroEstadoChange(event) {
+    this.setState({ filtroEstado: event.target.value });
+  }
+
   // Obtener el nombre de un producto elaborado
   getNombreProductoElaborado(id) {
     const { productos_elaborados } = this.state;
@@ -235,17 +250,16 @@ export class OrdenesProduccion extends Component {
   }
 
   render() {
-    const { ordenes,filtroEstado } = this.state;
+    const { ordenes, filtroEstado } = this.state;
 
     // Filtrar las ordenes por estado
     const ordenesFiltradas = this.filtrarPorEstado(ordenes, filtroEstado);
-
 
     return (
       <div className="col-sm-12 col-md-12">
         <h1>Órdenes de producción</h1>
         <Row className="justify-content-center mt-5">
-        <Col md={6}>
+          <Col md={6}>
             <div className="text-right mt-3">
               <Label for="filtroEstado">Filtro por estado:</Label>
               <Input
@@ -260,6 +274,13 @@ export class OrdenesProduccion extends Component {
               </Input>
             </div>
           </Col>
+          <Col md={6}>
+            <div className="text-right mt-3">
+              <Link to={"/Ordenes"}>
+                <Button color="primary">Agregar Orden/es</Button>
+              </Link>
+            </div>
+          </Col>
         </Row>
 
         <Table>
@@ -268,36 +289,33 @@ export class OrdenesProduccion extends Component {
               <th>Producto elaborado</th>
               <th>Cantidad</th>
               <th>Estado</th>
-              <th>Acción</th>
             </tr>
           </thead>
           <tbody>
-            {ordenesFiltradas.map(
-              ({
-                id_orden,
-                fl_cantidad,
-                fk_producto_elaborado,
-                bool_estado_orden,
-              }) => (
-                <tr key={id_orden}>
-                  <td>
-                    {this.getNombreProductoElaborado(fk_producto_elaborado)}
-                  </td>
-                  <td>{fl_cantidad}</td>
-                  <td>{bool_estado_orden ? "Finalizado" : "En Proceso"}</td>
-                  <td>
+            {ordenesFiltradas.map((orden) => (
+              <tr key={orden.id_orden}>
+                <td>
+                  {this.getNombreProductoElaborado(orden.fk_producto_elaborado)}
+                </td>
+                <td>{orden.fl_cantidad}</td>
+                <td>
+                  {orden.bool_estado_orden ? (
+                    <Button color="success" disabled>
+                      Finalizado
+                    </Button>
+                  ) : (
                     <Button
                       color="primary"
                       onClick={() =>
-                        this.handleUpdateOrden(id_orden, !bool_estado_orden)
+                        this.handleUpdateOrden(orden.id_orden, true)
                       }
                     >
-                      {bool_estado_orden ? "Poner en curso" : "Finalizar Orden"}
+                      En Curso
                     </Button>
-                  </td>
-                </tr>
-              )
-            )}
+                  )}
+                </td>
+              </tr>
+            ))}
           </tbody>
         </Table>
       </div>
