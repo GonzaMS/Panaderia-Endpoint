@@ -23,7 +23,7 @@ namespace Panaderia.Main
         public void ConfigureServices(IServiceCollection services)
         {
             // MySQL Connection String
-            var connectionString = "Server=panaderia.mysql.database.azure.com;Database=panaderia;Port=3306;user=databasepanaderia;Password=Admin123$;SSL Mode=Required";
+            var connectionString = "Server=localhost;Database=panaderia;Port=3306;user=gonza;Password=12345678;SSL Mode=Required";
 
             // Creamos la conexion a la base de datos
             var connection = new MySqlConnection(connectionString);

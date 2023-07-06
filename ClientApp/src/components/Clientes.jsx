@@ -15,6 +15,7 @@ import {
 export class Clientes extends Component {
   state = {
     clientes: [],
+    facturas: [],
     modalActualizar: false,
     modalInsertar: false,
     form: {
@@ -29,6 +30,7 @@ export class Clientes extends Component {
   // Comprobamos que el componente se haya montado
   componentDidMount() {
     this.fetchClientes();
+    this.fetchFacturas();
   }
 
   //Obtenemos los clientes
@@ -41,6 +43,19 @@ export class Clientes extends Component {
       })
       .catch((error) => {
         console.error("Error obteniendo los clientes", error);
+      });
+  };
+
+  //Obtenemos las facturas
+  fetchFacturas = () => {
+    axios
+      .get("https://localhost:7089/api/facturas")
+      .then((response) => {
+        const listaFacturas = response.data;
+        this.setState({ facturas: listaFacturas });
+      })
+      .catch((error) => {
+        console.error("Error obteniendo las facturas", error);
       });
   };
 
@@ -104,24 +119,94 @@ export class Clientes extends Component {
       });
   };
 
-
   // Eliminar un cliente
   eliminar = (dato) => {
-    var opcion = window.confirm(
-      "Estás seguro que deseas ELIMINAR al cliente " + dato.str_nombre_cliente
+    const { facturas } = this.state;
+    console.log(dato);
+
+    //Verificamos si el cliente tiene facturas
+    const facturasCliente = facturas.filter(
+      (factura) => factura.fk_cliente === dato.id_cliente
     );
-    if (opcion === true) {
-      axios
-        .delete(`https://localhost:7089/api/clientes/${dato.id_cliente}`)
-        .then((response) => {
-          const lista = this.state.clientes.filter(
-            (cliente) => cliente.id_cliente !== dato.id_cliente
-          );
-          this.setState({ clientes: lista, modalActualizar: false });
-        })
-        .catch((error) => {
-          console.error("Error al eliminar el cliente:", error);
+
+    if (facturasCliente.length > 0) {
+      console.log("El cliente tiene facturas");
+
+
+      //Buscamos todas las facturas del cliente
+      const facturasCliente = facturas.filter(
+        (factura) => factura.fk_cliente === dato.id_cliente
+      );
+
+      console.log(facturasCliente);
+      //A todas las facturas del cliente le cambiamos el estado de fk_cliente a null
+      facturasCliente.forEach((factura) => {
+        const facturaActualizada = JSON.stringify({
+          id_factura: factura.id_factura,
+          int_timbrado: factura.int_timbrado,
+          str_ruc_cliente: factura.str_ruc_cliente,
+          str_nombre_cliente: factura.str_nombre_cliente,
+          date_fecha_emision: factura.date_fecha_emision,
+          fl_total_pagar: factura.fl_total_pagar,
+          fl_iva: factura.fl_iva,
+          fk_cliente: null,
         });
+        axios
+          .put(
+            `https://localhost:7089/api/facturas/${factura.id_factura}`,
+            facturaActualizada,
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          )
+          .then((response) => {
+            const facturaActualizada = response.data;
+            console.log(facturaActualizada);
+          })
+          .catch((error) => {
+            console.error("Error al editar la factura:", error);
+          });
+      });
+
+      //Eliminamos el cliente
+      var opcion = window.confirm(
+        "Estás seguro que deseas ELIMINAR al cliente " + dato.str_nombre_cliente
+      );
+      if (opcion === true) {
+        axios
+          .delete(`https://localhost:7089/api/clientes/${dato.id_cliente}`)
+          .then((response) => {
+            const lista = this.state.clientes.filter(
+              (cliente) => cliente.id_cliente !== dato.id_cliente
+            );
+            this.setState({ clientes: lista, modalActualizar: false });
+            this.fetchClientes();
+          })
+          .catch((error) => {
+            console.error("Error al eliminar el cliente:", error);
+          });
+      }
+
+    } else {
+      console.log("El cliente no tiene facturas");
+      var opcion = window.confirm(
+        "Estás seguro que deseas ELIMINAR al cliente " + dato.str_nombre_cliente
+      );
+      if (opcion === true) {
+        axios
+          .delete(`https://localhost:7089/api/clientes/${dato.id_cliente}`)
+          .then((response) => {
+            const lista = this.state.clientes.filter(
+              (cliente) => cliente.id_cliente !== dato.id_cliente
+            );
+            this.setState({ clientes: lista, modalActualizar: false });
+          })
+          .catch((error) => {
+            console.error("Error al eliminar el cliente:", error);
+          });
+      }
     }
   };
 
@@ -167,7 +252,7 @@ export class Clientes extends Component {
   };
 
   render() {
-    const {clientes } = this.state;
+    const { clientes } = this.state;
 
     return (
       <>

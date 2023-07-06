@@ -35,11 +35,8 @@ namespace Panaderia.Data
                         .Property(f => f.fl_total_pagar)
                         .HasColumnName("fl_total_pagar");
             modelBuilder.Entity<Facturas>()
-                        .Property(f => f.fl_iva_5)
-                        .HasColumnName("fl_iva_5");
-            modelBuilder.Entity<Facturas>()
-                        .Property(f => f.fl_iva_10)
-                        .HasColumnName("fl_iva_10");
+                        .Property(f => f.fl_iva)
+                        .HasColumnName("fl_iva");
             modelBuilder.Entity<Facturas>()
                         .Property(f => f.fk_cliente)
                         .HasColumnName("fk_cliente");

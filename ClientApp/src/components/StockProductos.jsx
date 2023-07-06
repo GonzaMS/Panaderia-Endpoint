@@ -105,8 +105,8 @@ export class StockProductos extends Component {
 
       // Si el detalle del producto se encuentra
       if (detalleProducto) {
-        // Retornar la fecha de elaboracion
-        return detalleProducto.date_elaboracion;
+        // Retornar la fecha de elaboracion formateada a yyyy-mm-dd
+        return detalleProducto.date_elaboracion.substring(0, 10);
       } else {
         return "Sin fecha";
       }

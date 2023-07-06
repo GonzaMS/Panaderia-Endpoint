@@ -17,11 +17,8 @@ namespace Panaderia.Models
         [Required]
         public float fl_total_pagar { get; set; }
         [Required]
-        public float fl_iva_5 { get; set; }
-        [Required]
-        public float fl_iva_10 { get; set; }
-        [Required]
-        public int fk_cliente { get; set; }
+        public float fl_iva { get; set; }
+        public int? fk_cliente { get; set; }
 
         public virtual ICollection<Detalles_Facturas>? Detalles_Facturas { get; set; }
         public virtual Clientes? Clientes { get; set; }
