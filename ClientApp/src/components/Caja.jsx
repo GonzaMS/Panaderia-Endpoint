@@ -24,9 +24,19 @@ export class Caja extends Component {
     productosFactura: [], // Lista de productos de la factura seleccionada
     precioUnitario: [], // Lista de precios unitarios de los productos de la factura seleccionada
     cantidad: [], // Lista de cantidades de los productos de la factura seleccionada
+    cajaTotal: 0, // Total de la caja
+    nombreCajero: "", // Nombre del cajero seleccionado
   };
 
   componentDidMount() {
+    // Verificar si hay un estado de caja abierta almacenado en el almacenamiento local
+    const cajaAbiertaLocal = localStorage.getItem("cajaAbierta");
+
+    if (cajaAbiertaLocal) {
+      // Si hay un estado de caja abierta almacenado, actualizar el estado en la clase y evitar cerrar la caja
+      this.setState({ cajaAbierta: true });
+    }
+
     this.fetchCajas();
     this.fetchDetallesCajas();
     this.fetchCajeros();
@@ -37,14 +47,6 @@ export class Caja extends Component {
     this.fetchFormasPagos();
     this.fetchClientes();
     this.fetchProductosElaborados();
-
-    // Verificar si hay un estado de caja abierta almacenado en el almacenamiento local
-    const cajaAbiertaLocal = localStorage.getItem("cajaAbierta");
-
-    if (cajaAbiertaLocal) {
-      // Si hay un estado de caja abierta almacenado, actualizar el estado en la clase y evitar cerrar la caja
-      this.setState({ cajaAbierta: true });
-    }
   }
 
   //Obtenemos las cajas
@@ -177,7 +179,7 @@ export class Caja extends Component {
 
   // Función para abrir la caja
   abrirCaja = () => {
-    const { selectedCajero } = this.state;
+    const { selectedCajero, detalles_cajas, cajeros } = this.state;
 
     console.log("selectedCajero", selectedCajero);
 
@@ -210,13 +212,32 @@ export class Caja extends Component {
     axios
       .post("https://localhost:7089/api/detalles_cajas", aperturaCajaJSON, {
         headers: {
-          // Overwrite Axios's automatically set Content-Type
           "Content-Type": "application/json",
         },
       })
       .then((response) => {
         // Actualizar el estado de la caja y mostrar un mensaje de éxito
         this.setState({ cajaAbierta: true });
+
+        // Obtener el último detalle de caja
+        const ultimoDetalleCaja = detalles_cajas[detalles_cajas.length - 1];
+
+        // Obtener el total de la caja del último detalle de caja
+        const cajaTotal = ultimoDetalleCaja.fl_monto_caja;
+
+        const convertir = parseInt(selectedCajero);
+
+        // Obtener el nombre del cajero seleccionado
+        const cajeroSeleccionado = cajeros.find(
+          (cajero) => cajero.id_cajero === convertir
+        );
+        console.log("cajeroSeleccionado", cajeroSeleccionado);
+
+        const nombreCajero = cajeroSeleccionado.str_nombre_cajero;
+
+        // Actualizar el estado de cajaTotal y nombreCajero
+        this.setState({ cajaTotal, nombreCajero });
+
         alert("¡La caja ha sido abierta con éxito!");
       })
       .catch((error) => {
@@ -251,10 +272,17 @@ export class Caja extends Component {
     // Eliminar el estado de cajaAbierta del almacenamiento local
     localStorage.removeItem("cajaAbierta");
 
+
+    //Obtenemos el fl_monto_caja del ultimo detalle de caja
+    const fl_monto_caja =
+      detalles_cajas[detalles_cajas.length - 1].fl_monto_caja;
+    console.log("fl_monto_caja", fl_monto_caja);
+
     const actualizarDetalleCaja = {
       id_detalle_caja: ultimoDetalleCaja,
       fk_caja: 1,
       fk_cajero: selectedCajero,
+      fl_monto_caja: fl_monto_caja,
       bool_estado_caja: false,
     };
 
@@ -274,21 +302,21 @@ export class Caja extends Component {
             "Content-Type": "application/json",
           },
         }
-      ) // Reemplaza "1" con el ID de la caja que deseas actualizar
+      )
       .then(() => {
-        this.setState({ cajaAbierta: false });
+        this.setState({ cajaAbierta: false, cajaTotal: 0, nombreCajero: "" });
       })
+
       .catch((error) => {
         console.error("Error al cerrar la caja:", error);
       });
+
+    console.log(selectedCajero);
   };
 
   //Funcion para ver los detalles de la factura
   verDetallesFactura = (idFactura) => {
-    const {
-      detalles_facturas,
-      productos_elaborados,
-    } = this.state;
+    const { detalles_facturas, productos_elaborados } = this.state;
 
     //Obtenemos todos los detalles de la factura
     const detallesFactura = detalles_facturas.filter(
@@ -320,7 +348,7 @@ export class Caja extends Component {
       precioUnitario: precioUnitarioProductosElaborados,
     });
   };
-  
+
   //Funcion para cerrar el modal
   cerrarModal = () => {
     this.setState({ selectedFactura: null });
@@ -337,8 +365,13 @@ export class Caja extends Component {
       selectedFactura,
       productosFactura,
       cantidad,
-      precioUnitario
+      precioUnitario,
+      nombreCajero,
+      cajaTotal,
     } = this.state;
+
+    console.log(cajaTotal);
+    console.log(nombreCajero)
 
     return (
       <>
@@ -403,6 +436,18 @@ export class Caja extends Component {
               </div>
             </div>
           </div>
+          {/*Si la caja esta abierta mostramos el total de la caja y quien abre la caja*/}
+          {cajaAbierta && (
+            <div className="card" style={{ width: "18rem" }}>
+              <div className="card-body">
+                <h5 className="card-title">Detalles de la caja</h5>
+                <br />
+                <h5 className="card-text">Total en caja: {cajaTotal}</h5>
+                <br />
+                <h5 className="card-text">Cajero: {nombreCajero}</h5>
+              </div>
+            </div>
+          )}
         </div>
 
         {/*Si la caja esta abierta mostramos todas las facturas*/}
@@ -413,9 +458,13 @@ export class Caja extends Component {
                 <thead>
                   <tr>
                     <th scope="col">Cliente</th>
+                    <th></th>
                     <th scope="col">RUC</th>
+                    <th></th>
                     <th scope="col">Fecha</th>
+                    <th></th>
                     <th scope="col">Total</th>
+                    <th></th>
                     <th scope="col">Acciones</th>
                   </tr>
                 </thead>
@@ -423,9 +472,13 @@ export class Caja extends Component {
                   {facturas.map((factura) => (
                     <tr key={factura.id_factura}>
                       <th>{factura.str_nombre_cliente}</th>
+                      <th></th>
                       <th>{factura.str_ruc_cliente}</th>
+                      <th></th>
                       <td>{factura.date_fecha_emision.substring(0, 10)}</td>
+                      <th></th>
                       <td>{factura.fl_total_pagar}</td>
+                      <th></th>
                       <td>
                         <button
                           type="button"
@@ -467,7 +520,7 @@ export class Caja extends Component {
                   </tr>
                 </thead>
                 <tbody>
-                  {productosFactura.map((producto,index) => (
+                  {productosFactura.map((producto, index) => (
                     <tr key={producto.id_producto_elaborado}>
                       <td>{producto.str_nombre_producto}</td>
                       <td>{cantidad[index]}</td>
