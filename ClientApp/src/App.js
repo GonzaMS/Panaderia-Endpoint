@@ -5,12 +5,20 @@ import { ThemeProvider } from "./context/ThemeContext";
 import { Menu } from "./components/Menu";
 import { Login } from "./components/Login";
 import { useState } from "react";
+import { useEffect } from "react";
 import "./css/styles.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 //import { Layout } from "./Sin_uso/Layout";
 
 export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    sessionStorage.getItem("isLoggedIn") === "true"
+  );
+
+  useEffect(() => {
+    sessionStorage.setItem("isLoggedIn", isLoggedIn);
+  }, [isLoggedIn]);
+  //const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   if (!isLoggedIn) {
     return <Login setIsLoggedIn={setIsLoggedIn} />;

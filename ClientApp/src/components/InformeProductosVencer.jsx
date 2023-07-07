@@ -76,7 +76,7 @@ export class InformeProductosVencer extends Component {
 
     //Se retorna la fecha de vencimiento
     if (producto) {
-      return producto.date_vencimiento;
+      return producto.date_vencimiento.substring(0,10);
     }
   };
 
@@ -91,7 +91,7 @@ export class InformeProductosVencer extends Component {
 
     //Se retorna la fecha de elaboracion
     if (producto) {
-      return producto.date_elaboracion;
+      return producto.date_elaboracion.substring(0,10);
     }
   };
 

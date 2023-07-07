@@ -529,6 +529,8 @@ export class Caja extends Component {
                     <th></th>
                     <th scope="col">Total</th>
                     <th></th>
+                    <th scope= "col">IVA</th>
+                    <th></th>
                     <th scope="col">Acciones</th>
                   </tr>
                 </thead>
@@ -542,6 +544,8 @@ export class Caja extends Component {
                       <td>{factura.date_fecha_emision.substring(0, 10)}</td>
                       <th></th>
                       <td>{factura.fl_total_pagar}</td>
+                      <th></th>
+                      <th>{factura.fl_iva}</th>
                       <th></th>
                       <td>
                         <button

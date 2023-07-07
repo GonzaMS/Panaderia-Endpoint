@@ -168,8 +168,8 @@ export class InformeProductosDia extends Component {
                   <td>
                     {this.obtenerProducto(producto.fk_producto_elaborado)}
                   </td>
-                  <td>{producto.date_elaboracion}</td>
-                  <td>{producto.date_vencimiento}</td>
+                  <td>{producto.date_elaboracion.substring(0,10)}</td>
+                  <td>{producto.date_vencimiento.substring(0,10)}</td>
                 </tr>
               ))}
             </tbody>
