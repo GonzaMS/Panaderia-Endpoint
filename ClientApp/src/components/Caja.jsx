@@ -26,6 +26,10 @@ export class Caja extends Component {
     cantidad: [], // Lista de cantidades de los productos de la factura seleccionada
     cajaTotal: 0, // Total de la caja
     nombreCajero: "", // Nombre del cajero seleccionado
+    cobrarModalOpen: false,
+    montoPagar: 0, // Monto a pagar
+    vuelto: 0, // Vuelto
+    valorEfectivo: 0, // Valor en efectivo
   };
 
   componentDidMount() {
@@ -272,7 +276,6 @@ export class Caja extends Component {
     // Eliminar el estado de cajaAbierta del almacenamiento local
     localStorage.removeItem("cajaAbierta");
 
-
     //Obtenemos el fl_monto_caja del ultimo detalle de caja
     const fl_monto_caja =
       detalles_cajas[detalles_cajas.length - 1].fl_monto_caja;
@@ -355,6 +358,64 @@ export class Caja extends Component {
   };
 
   //Funcion para cobrar la factura
+  cobrarFactura = (idFactura) => {
+    const { facturas } = this.state;
+
+    // Obtener la factura seleccionada
+    const factura = facturas.find(
+      (factura) => factura.id_factura === idFactura
+    );
+
+    // Obtener el monto total de la factura
+    const montoTotal = factura.fl_total_pagar;
+
+    // Actualizar el estado del monto a pagar
+    this.setState({ montoPagar: montoTotal });
+
+    // Abrir el modal de cobro
+    this.setState({ cobrarModalOpen: true });
+  };
+
+  // Función para manejar el cambio de valor en el modal de cobro
+  handleModalCobrosChange = (event) => {
+    const { name, value } = event.target;
+    this.setState({ [name]: value });
+
+    // Si el campo modificado es "valorEfectivo", calcular el vuelto
+    if (name === "valorEfectivo") {
+      const { montoPagar } = this.state;
+
+      // Verificar si el valor del efectivo es mayor o igual al monto a pagar
+      if (value >= montoPagar) {
+        // Calcular el vuelto
+        const vuelto = value - montoPagar;
+
+        // Actualizar el estado con el valor del vuelto
+        this.setState({ vuelto });
+      } else {
+        // Si el valor del efectivo es menor al monto a pagar, reiniciar el valor del vuelto
+        this.setState({ vuelto: 0 });
+      }
+    }
+  };
+
+  // Función para manejar el envío del formulario de cobro
+  handleSubmitCobro = (event) => {
+    event.preventDefault();
+
+    // Obtener los valores del formulario de cobro
+    const { formaPagoSeleccionada } = this.state;
+
+    // Realizar acciones necesarias con los datos del cobro
+
+    // Cerrar el modal de cobro
+    this.setState({ cobrarModalOpen: false });
+  };
+
+  // Función para cerrar el modal de cobro
+  handleCloseCobroModal = () => {
+    this.setState({ cobrarModalOpen: false });
+  };
 
   render() {
     const {
@@ -368,10 +429,13 @@ export class Caja extends Component {
       precioUnitario,
       nombreCajero,
       cajaTotal,
+      cobrarModalOpen,
+      formas_pagos,
+      formaPagoSeleccionada,
+      montoPagar,
+      vuelto,
+      valorEfectivo,
     } = this.state;
-
-    console.log(cajaTotal);
-    console.log(nombreCajero)
 
     return (
       <>
@@ -490,7 +554,11 @@ export class Caja extends Component {
                           Ver
                         </button>
 
-                        <button type="button" className="btn btn-primary">
+                        <button
+                          type="button"
+                          className="btn btn-primary"
+                          onClick={() => this.cobrarFactura(factura.id_factura)}
+                        >
                           Cobrar
                         </button>
                       </td>
@@ -500,6 +568,105 @@ export class Caja extends Component {
               </table>
             </div>
             <div></div>
+
+            {/* Modal para cobrar */}
+            <Modal isOpen={cobrarModalOpen} toggle={this.handleCloseCobroModal}>
+              <ModalHeader toggle={this.handleCloseCobroModal}>
+                Cobrar Factura
+              </ModalHeader>
+              <ModalBody>
+                <form onSubmit={this.handleSubmitCobro}>
+                  <div className="mb-3">
+                    <label
+                      htmlFor="formaPagoSeleccionada"
+                      className="form-label"
+                    >
+                      Forma de Pago
+                    </label>
+                    <select
+                      className="form-select"
+                      name="formaPagoSeleccionada"
+                      id="formaPagoSeleccionada"
+                      value={formaPagoSeleccionada}
+                      onChange={this.handleModalCobrosChange}
+                      required
+                    >
+                      <option value="">Seleccione una forma de pago</option>
+                      {formas_pagos.map((forma_pago) => (
+                        <option
+                          key={forma_pago.id_forma_pago}
+                          value={forma_pago.id_forma_pago}
+                        >
+                          {forma_pago.str_formas}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="mb-3">
+                    {/*Agregamos el monto */}
+                    <label htmlFor="montoPagar" className="form-label">
+                      Monto
+                    </label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      name="montoPagar"
+                      id="montoPagar"
+                      value={montoPagar}
+                      onChange={this.handleModalCobrosChange}
+                      required
+                    />
+                  </div>
+
+                  {/*Agregamos el efectivo del cliente */}
+                  <div className="mb-3">
+                    <label htmlFor="valorEfectivo" className="form-label">
+                      Efectivo
+                    </label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      name="valorEfectivo"
+                      id="valorEfectivo"
+                      value={valorEfectivo}
+                      onChange={this.handleModalCobrosChange}
+                      required
+                    />
+                  </div>
+
+                  <div className="mb-3">
+                    {/*Agregamos el vuelto */}
+                    <label htmlFor="vuelto" className="form-label">
+                      Vuelto
+                    </label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      name="vuelto"
+                      id="vuelto"
+                      value={vuelto}
+                      onChange={this.handleModalCobrosChange}
+                      required
+                    />
+                  </div>
+
+                  <div className="text-center">
+                    <button type="submit" className="btn btn-primary">
+                      Cobrar
+                    </button>
+                  </div>
+                </form>
+              </ModalBody>
+              <ModalFooter>
+                <button
+                  className="btn btn-secondary"
+                  onClick={this.handleCloseCobroModal}
+                >
+                  Cancelar
+                </button>
+              </ModalFooter>
+            </Modal>
           </div>
         )}
 

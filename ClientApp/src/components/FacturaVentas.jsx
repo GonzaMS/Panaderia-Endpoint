@@ -257,36 +257,6 @@ export const FacturaVentas = () => {
     }
   };
 
-  const handleAgregarItem = () => {
-    const item = {
-      producto: productoSeleccionado,
-      cantidad: parseFloat(cantidad),
-      precioUnitario: parseFloat(precioUnitario),
-      impuesto: parseFloat(impuesto),
-    };
-
-    // Verificar disponibilidad de producto en stock
-    const productoStock = datosProductosStock.find(
-      (producto) => producto.fk_producto_elaborado === item.producto
-    );
-
-    if (!productoStock || productoStock.fl_cantidad < item.cantidad) {
-      console.log("No hay suficiente cantidad del producto en stock.");
-      return;
-    }
-
-    setItems([...items, item]);
-
-    const itemTotal =
-      parseFloat(item.precioUnitario) * parseFloat(item.cantidad);
-    setTotal((prevTotal) => prevTotal + itemTotal);
-
-    setProductoSeleccionado("");
-    setCantidad("");
-    setPrecioUnitario("");
-    setImpuesto("");
-  };
-
   useEffect(() => {
     const obtenerFechaActual = () => {
       const fechaActual = new Date();
@@ -313,7 +283,7 @@ export const FacturaVentas = () => {
       return;
     }
 
-    // Guardar factura
+    // Crear la factura
     try {
       const factura = {
         int_timbrado: generarNumeroAzar(),
@@ -326,55 +296,41 @@ export const FacturaVentas = () => {
         fk_cliente: idCliente,
       };
 
-      const facturasResponse = await axios.post(
+      const facturaResponse = await axios.post(
         "https://localhost:7089/api/facturas",
         factura
       );
-      const facturaGuardada = facturasResponse.data;
+      const facturaGuardada = facturaResponse.data;
 
-      for (const item of items) {
+      // Crear los detalles de la factura
+      const detallesFactura = items.map((item) => {
         const productoEncontrado = datosProductosElaborados.find(
           (producto) => producto.nombre === item.producto
         );
 
         if (productoEncontrado) {
-          const detallesFactura = {
+          return {
             int_cantidad: item.cantidad,
             fl_iva: 0,
             fk_factura: facturaGuardada.id_factura,
             fk_producto: productoEncontrado.id,
           };
-
-          await axios.post(
-            "https://localhost:7089/api/detalles_facturas",
-            detallesFactura
-          );
-          // Descontar cantidad del producto vendido del stock correspondiente
-          const productoStock = datosProductosStock.find(
-            (producto) =>
-              producto.fk_producto_elaborado === productoEncontrado.id
-          );
-
-          if (productoStock) {
-            const nuevaCantidad = productoStock.fl_cantidad - item.cantidad;
-
-            // Actualizar la cantidad del producto en el estado datosProductosStock
-            setDatosProductosStock((prevProductosStock) =>
-              prevProductosStock.map((producto) =>
-                producto.fk_producto_elaborado === productoEncontrado.id
-                  ? { ...producto, fl_cantidad: nuevaCantidad }
-                  : producto
-              )
-            );
-
-            // Actualizar la cantidad del producto en el stock en la base de datos
-            await axios.put(
-              `https://localhost:7089/api/productos_elaborados_stock/${productoStock.id_producto_stock}`,
-              { ...productoStock, fl_cantidad: nuevaCantidad }
-            );
-          }
+        } else {
+          return null;
         }
-      }
+      });
+
+      // Filtrar los detalles de la factura que no se encontraron
+      const detallesFacturaValidos = detallesFactura.filter(
+        (detalle) => detalle !== null
+      );
+
+      // Guardar los detalles de la factura
+      const guardarDetallesPromises = detallesFacturaValidos.map((detalle) =>
+        axios.post("https://localhost:7089/api/detalles_facturas", detalle)
+      );
+      await Promise.all(guardarDetallesPromises);
+
       console.log("Factura guardada:", facturaGuardada);
     } catch (error) {
       console.error(error);
@@ -405,6 +361,83 @@ export const FacturaVentas = () => {
     } else {
       setPrecioUnitario("");
     }
+  };
+
+  const handleAgregarItem = () => {
+    const productoEncontrado = datosProductosElaborados.find(
+      (producto) => producto.nombre === productoSeleccionado
+    );
+
+    console.log(productoEncontrado);
+
+    const item = {
+      producto: productoSeleccionado,
+      cantidad: parseFloat(cantidad),
+      precioUnitario: parseFloat(precioUnitario),
+      impuesto: parseFloat(impuesto),
+    };
+
+    console.log(item.cantidad);
+
+    console.log(productoEncontrado.id);
+
+    const productoStockEncontrado = datosProductosStock.find(
+      (producto) => producto.fk_producto_elaborado === productoEncontrado.id
+    );
+
+    console.log(productoStockEncontrado);
+
+    if (
+      !productoStockEncontrado ||
+      productoStockEncontrado.fl_cantidad < item.cantidad
+    ) {
+      alert("No hay suficiente cantidad del producto en stock.");
+      console.log("No hay suficiente cantidad del producto en stock.");
+      return;
+    }
+
+    setItems([...items, item]);
+
+    const itemTotal =
+      parseFloat(item.precioUnitario) * parseFloat(item.cantidad);
+    setTotal((prevTotal) => prevTotal + itemTotal);
+
+    setProductoSeleccionado("");
+    setCantidad("");
+    setPrecioUnitario("");
+    setImpuesto("");
+
+    console.log(productoStockEncontrado.id_producto_stock);
+
+    //Descontar del stock
+    const productoStock = {
+      id_producto_stock: productoStockEncontrado.id_producto_stock,
+      fk_producto_elaborado: productoStockEncontrado.fk_producto_elaborado,
+      fk_stock: productoStockEncontrado.fk_stock,
+      fl_cantidad: productoStockEncontrado.fl_cantidad - item.cantidad,
+    };
+
+    const body = JSON.stringify(productoStock);
+
+    try {
+      axios
+        .put(
+          `https://localhost:7089/api/productos_elaborados_stock/${productoStockEncontrado.id_producto_stock}`,
+          body,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        )
+        .then((res) => {
+          console.log(res);
+        });
+    } catch (error) {
+      console.error(error);
+    }
+
+    console.log(productoStock);
   };
 
   return (
@@ -543,7 +576,7 @@ export const FacturaVentas = () => {
           />
         </div>
         <div className="col-sm-12 col-md-4">
-          <Link to="/cajaCajeros" className="custom-link">
+          <Link to="/Caja" className="custom-link">
             <button
               type="button"
               className="btn btn-outline-success facturaAgg"

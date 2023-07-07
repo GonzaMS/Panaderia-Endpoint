@@ -76,8 +76,6 @@ export class Ventas extends Component {
       });
   };
   
-  
-
   //Cambiar
   filtrarPorFecha = (fecha) => {
     if (fecha === "") {
@@ -97,6 +95,7 @@ export class Ventas extends Component {
         });
     }
   };
+
   obtenerDetallesProductos = (idFactura) => {
     axios
       .get(`https://localhost:7089/api/detalles_facturas?fk_factura=${idFactura}`)
@@ -137,8 +136,6 @@ export class Ventas extends Component {
         console.error(error);
       });
   };
-  
-  
   
   mostrarModalVenta = (dato) => {
     this.setState(
