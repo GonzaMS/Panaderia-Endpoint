@@ -312,8 +312,6 @@ export class Ordenes extends Component {
             },
           }
         );
-    
-        // Realizar el manejo de la respuesta aquí si es necesario
       }
     
       // Resto del código

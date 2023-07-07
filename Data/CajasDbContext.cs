@@ -19,8 +19,8 @@ namespace Panaderia.Data
             modelBuilder.Entity<Cajas>()
                         .HasKey(c => c.id_cajas);
             modelBuilder.Entity<Cajas>()
-                        .Property(c => c.int_numero_caja)
-                        .HasColumnName("int_numero_caja");
+                        .Property(c => c.str_numero_caja)
+                        .HasColumnName("str_numero_caja");
 
             // Cajeros
             modelBuilder.Entity<Cajeros>()
@@ -86,10 +86,10 @@ namespace Panaderia.Data
                         .HasForeignKey(c => c.fk_cajero);
 
             //Un detalles cajas tiene un arqueo
-            modelBuilder.Entity<Arqueos>()
-                        .HasOne<Detalles_cajas>(d => d.Detalles_cajas)
-                        .WithOne(a => a.Arqueos)
-                        .HasForeignKey<Detalles_cajas>(d => d.id_detalle_caja);
+            //modelBuilder.Entity<Arqueos>()
+            //          .HasOne<Detalles_cajas>(d => d.Detalles_cajas)
+            //        .WithOne(a => a.Arqueos)
+            //      .HasForeignKey<Detalles_cajas>(d => d.id_detalle_caja);
 
             //Un detallles cajas tiene varios movimientos
             modelBuilder.Entity<Movimientos>()

@@ -4,7 +4,6 @@ import { Cajeros } from "./components/Cajeros";
 import { Recetas } from "./components/Recetas";
 import { Clientes } from "./components/Clientes";
 import { Caja } from "./components/Caja";
-import { IniciarCaja } from "./components/IniciarCaja";
 
 import { Compras } from "./components/Compras";
 import { FacturaCompra } from "./components/FacturaCompra";
@@ -92,8 +91,8 @@ const AppRoutes = [
     element: <Caja />,
   },
   {
-    path: "/IniciarCaja",
-    element: <IniciarCaja />,
+    path: "/Cajeros",
+    element: <Cajeros />,
   },
 ];
 

@@ -40,6 +40,9 @@ namespace Panaderia.Data
             modelBuilder.Entity<Facturas>()
                         .Property(f => f.fk_cliente)
                         .HasColumnName("fk_cliente");
+            modelBuilder.Entity<Facturas>()
+                        .Property(f => f.bool_estado_factura)
+                        .HasColumnName("bool_estado_factura");
 
             //Detalles_Facturas
             modelBuilder.Entity<Detalles_Facturas>()

@@ -26,35 +26,36 @@ export const Menu = () => {
       </div>
 
       <Link
-        to="/ProductosElaborados"
+        to="/Caja"
         className="btn btn-outline-danger"
         style={{ color: "black", border: "none", fontWeight: "bold" }}
       >
-        <BsFillFolderFill /> Productos Elaborados
+        <BsInboxesFill />
+        Caja
       </Link>
 
       <Link
-        to="/Recetas"
+        to="/Cajeros"
         className="btn btn-outline-danger"
         style={{ color: "black", border: "none", fontWeight: "bold" }}
       >
-        <BsClipboard2HeartFill /> Recetas
+        <BsPersonBoundingBox /> Cajeros
       </Link>
 
       <Link
-        to="/StockIngrediente"
+        to="/Proveedores"
         className="btn btn-outline-danger"
         style={{ color: "black", border: "none", fontWeight: "bold" }}
       >
-        <BsUiChecks /> Stock de Ingredientes
+        <BsBuildingFillGear /> Proveedores
       </Link>
 
       <Link
-        to="/StockProductos"
+        to="/Clientes"
         className="btn btn-outline-danger"
         style={{ color: "black", border: "none", fontWeight: "bold" }}
       >
-        <BsUiChecks /> Stock de Productos
+        <BsPersonBoundingBox /> Clientes
       </Link>
 
       <Link
@@ -75,28 +76,35 @@ export const Menu = () => {
       </Link>
 
       <Link
-        to="/Clientes"
+        to="/Recetas"
         className="btn btn-outline-danger"
         style={{ color: "black", border: "none", fontWeight: "bold" }}
       >
-        <BsPersonBoundingBox /> Clientes
+        <BsClipboard2HeartFill /> Recetas
       </Link>
 
       <Link
-        to="/Proveedores"
+        to="/ProductosElaborados"
         className="btn btn-outline-danger"
         style={{ color: "black", border: "none", fontWeight: "bold" }}
       >
-        <BsBuildingFillGear /> Proveedores
+        <BsFillFolderFill /> Productos Elaborados
       </Link>
 
       <Link
-        to="/Caja"
+        to="/StockIngrediente"
         className="btn btn-outline-danger"
         style={{ color: "black", border: "none", fontWeight: "bold" }}
       >
-        <BsInboxesFill />
-        Caja
+        <BsUiChecks /> Stock de Ingredientes
+      </Link>
+
+      <Link
+        to="/StockProductos"
+        className="btn btn-outline-danger"
+        style={{ color: "black", border: "none", fontWeight: "bold" }}
+      >
+        <BsUiChecks /> Stock de Productos
       </Link>
 
       <Link

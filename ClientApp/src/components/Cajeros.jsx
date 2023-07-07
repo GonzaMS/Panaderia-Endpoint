@@ -19,6 +19,8 @@ export class Cajeros extends Component {
     modalOpen: false, // state to control modal visibility
     modalAddOpen: false, // state to control add modal visibility
     newCajeroName: "", // state to store the new cajero name
+    editCajeroId: null, // state to store the ID of the cajero being edited
+    editCajeroName: "", // state to store the new name of the cajero being edited
   };
 
   //Obtenemos los datos de la API
@@ -43,6 +45,8 @@ export class Cajeros extends Component {
   toggleModal = () => {
     this.setState((prevState) => ({
       modalOpen: !prevState.modalOpen,
+      editCajeroId: null,
+      editCajeroName: "",
     }));
   };
 
@@ -50,10 +54,9 @@ export class Cajeros extends Component {
   toggleAddModal = () => {
     this.setState((prevState) => ({
       modalAddOpen: !prevState.modalAddOpen,
-      editModalOpen: false,
     }));
   };
-  
+
   //Nombre del cajero
   handleCajeroNameChange = (event) => {
     this.setState({ newCajeroName: event.target.value });
@@ -78,6 +81,7 @@ export class Cajeros extends Component {
       });
   };
 
+  /*
   //Funcion para eliminar un cajero
   deleteCajero = (cajeroId) => {
     axios
@@ -90,15 +94,51 @@ export class Cajeros extends Component {
       });
   };
 
+                      <button
+                      type="button"
+                      className="btn btn-link text-danger"
+                      onClick={() => this.deleteCajero(cajero.id_cajero)}
+                    >
+                      Eliminar
+                    </button>
+  */
+
+  //Funcion para editar un cajero
+  editCajero = (cajeroId, cajeroName) => {
+    this.setState({
+      modalOpen: true,
+      editCajeroId: cajeroId,
+      editCajeroName: cajeroName,
+    });
+  };
+
+  //Funcion para guardar los cambios en un cajero editado
+  saveEditedCajero = () => {
+    const { editCajeroId, editCajeroName } = this.state;
+    const editedCajero = {
+      id_cajero: editCajeroId,
+      str_nombre_cajero: editCajeroName,
+    };
+
+    axios
+      .put(`https://localhost:7089/api/cajeros/${editCajeroId}`, editedCajero)
+      .then(() => {
+        this.toggleModal();
+        this.fetchData();
+        this.setState({ editCajeroId: null, editCajeroName: "" });
+      })
+      .catch((error) => {
+        console.error("Error al editar el cajero:", error);
+      });
+  };
+
   //Funcion para filtrar por nombre
   filtrarPorCajero = (nombreCajero) => {
     if (nombreCajero.trim() === "") {
       this.fetchData();
     } else {
       axios
-        .get(
-          `https://localhost:7089/api/cajeros/Buscar/${nombreCajero}`
-        )
+        .get(`https://localhost:7089/api/cajeros/Buscar/${nombreCajero}`)
         .then((response) => {
           const cajeros = response.data;
           this.setState({ cajeros });
@@ -110,7 +150,8 @@ export class Cajeros extends Component {
   };
 
   render() {
-    const { cajeros, modalOpen, modalAddOpen, newCajeroName } = this.state;
+    const { cajeros, modalOpen, modalAddOpen, newCajeroName, editCajeroName } =
+      this.state;
 
     return (
       <>
@@ -147,6 +188,7 @@ export class Cajeros extends Component {
                 </span>
               </div>
             </div>
+            ... ...
             <div className="col-sm-12 col-md-4">
               <button
                 type="button"
@@ -172,10 +214,15 @@ export class Cajeros extends Component {
                   <td>
                     <button
                       type="button"
-                      className="btn btn-link text-danger"
-                      onClick={() => this.deleteCajero(cajero.id_cajero)}
+                      className="btn btn-link text-primary"
+                      onClick={() =>
+                        this.editCajero(
+                          cajero.id_cajero,
+                          cajero.str_nombre_cajero
+                        )
+                      }
                     >
-                      Eliminar
+                      Editar
                     </button>
                   </td>
                 </tr>
@@ -185,7 +232,7 @@ export class Cajeros extends Component {
         </Container>
         {/* Modal */}
         <Modal isOpen={modalOpen} toggle={this.toggleModal}>
-          <ModalHeader toggle={ this.toggleModal }>Editar Cajero</ModalHeader>
+          <ModalHeader toggle={this.toggleModal}>Editar Cajero</ModalHeader>
           <ModalBody>
             <FormGroup>
               <Label for="cajeroName">Nombre</Label>
@@ -194,17 +241,25 @@ export class Cajeros extends Component {
                 name="cajeroName"
                 id="cajeroName"
                 placeholder="Ingrese el nombre del cajero"
+                value={editCajeroName}
+                onChange={(e) =>
+                  this.setState({ editCajeroName: e.target.value })
+                }
               />
             </FormGroup>
           </ModalBody>
           <ModalFooter>
-            <Button color="primary" onClick={ this.toggleModal }>Guardar</Button>
-            <Button color="secondary" onClick={ this.toggleModal }>Cancelar</Button>
+            <Button color="primary" onClick={this.saveEditedCajero}>
+              Guardar
+            </Button>
+            <Button color="secondary" onClick={this.toggleModal}>
+              Cancelar
+            </Button>
           </ModalFooter>
         </Modal>
         {/* Modal */}
         <Modal isOpen={modalAddOpen} toggle={this.toggleAddModal}>
-          <ModalHeader toggle={ this.toggleAddModal }>Agregar Cajero</ModalHeader>
+          <ModalHeader toggle={this.toggleAddModal}>Agregar Cajero</ModalHeader>
           <ModalBody>
             <FormGroup>
               <Label for="cajeroName">Nombre</Label>
@@ -219,8 +274,12 @@ export class Cajeros extends Component {
             </FormGroup>
           </ModalBody>
           <ModalFooter>
-            <Button color="primary" onClick={this.addCajero}>Guardar</Button>
-            <Button color="secondary" onClick={ this.toggleAddModal }>Cancelar</Button>
+            <Button color="primary" onClick={this.addCajero}>
+              Guardar
+            </Button>
+            <Button color="secondary" onClick={this.toggleAddModal}>
+              Cancelar
+            </Button>
           </ModalFooter>
         </Modal>
       </>
