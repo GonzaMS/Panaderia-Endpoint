@@ -204,7 +204,7 @@ export class Ventas extends Component {
               {this.state.data.map((dato) => (
                 <tr key={dato.id_factura}>
                   <td>{dato.str_nombre_cliente}</td>
-                  <td>{dato.date_fecha_emision}</td>
+                  <td>{dato.date_fecha_emision.substring(0,10)}</td>
                   <td>{dato.fl_total_pagar}</td>
                   <td>
                     <button

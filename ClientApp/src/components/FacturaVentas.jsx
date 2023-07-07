@@ -17,10 +17,22 @@ export const FacturaVentas = () => {
   const [datosProductosElaborados, setDatosProductosElaborados] = useState([]);
   const [datosClientes, setDatosClientes] = useState([]); // Nuevo estado para los clientes
   const [fechaActual, setFechaActual] = useState("");
+  const [datosProductosStock, setDatosProductosStock] = useState([]);
+  const [datosTiposMovimientos, setDatosTiposMovimientos] = useState([]);
+  const [datosMovimientoStock, setDatosMovimientoStock] = useState([]);
+  const [datosStocks, setDatosStocks] = useState([]);
+  const [datosDetallesFacturas, setDatosDetallesFacturas] = useState([]);
+  const [datosFacturas, setDatosFacturas] = useState([]);
 
   useEffect(() => {
     obtenerProductosElaborados();
     obtenerClientes();
+    obtenerProductosStock();
+    obtenerTiposMovimientos();
+    obtenerMovimientoStock();
+    obtenerStocks();
+    obtenerDetallesFacturas();
+    obtenerFacturas();
   }, []);
 
   const obtenerProductosElaborados = async () => {
@@ -60,6 +72,140 @@ export const FacturaVentas = () => {
       setDatosClientes(datosClientes);
 
       console.log(datosClientes);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const obtenerProductosStock = async () => {
+    try {
+      const response = await axios.get(
+        "https://localhost:7089/api/productos_elaborados_stock"
+      );
+      const productosStock = response.data;
+
+      const datosProductosStock = productosStock.map((productoStock) => ({
+        id_producto_stock: productoStock.id_producto_stock,
+        fk_producto_elaborado: productoStock.fk_producto_elaborado,
+        fk_stock: productoStock.fk_stock,
+        fl_cantidad: productoStock.fl_cantidad,
+      }));
+
+      setDatosProductosStock(datosProductosStock);
+
+      console.log(datosProductosStock);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const obtenerTiposMovimientos = async () => {
+    try {
+      const response = await axios.get(
+        "https://localhost:7089/api/tipos_movimientos"
+      );
+      const tiposMovimientos = response.data;
+
+      const datosTiposMovimientos = tiposMovimientos.map((tipoMovimiento) => ({
+        id_tipo_movimiento: tipoMovimiento.id_tipo_movimiento,
+        int_movimiento: tipoMovimiento.int_movimiento,
+        str_tipo: tipoMovimiento.str_tipo,
+      }));
+
+      setDatosTiposMovimientos(datosTiposMovimientos);
+
+      console.log(datosTiposMovimientos);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const obtenerMovimientoStock = async () => {
+    try {
+      const response = await axios.get(
+        "https://localhost:7089/api/movimiento_stock"
+      );
+      const movimientosStock = response.data;
+
+      const datosMovimientosStock = movimientosStock.map((movimientoStock) => ({
+        id_transferencia_stock: movimientoStock.id_transferencia_stock,
+        fk_producto_elaborado: movimientoStock.fk_producto_elaborado,
+        fk_Stock: movimientoStock.fk_stock,
+        fk_tipo_movimiento: movimientoStock.fk_tipo_movimiento,
+        fl_cantidad: movimientoStock.fl_cantidad,
+        date_fecha_ingreso: movimientoStock.date_fecha_ingreso,
+      }));
+
+      setDatosMovimientoStock(datosMovimientosStock);
+
+      console.log(datosMovimientosStock);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const obtenerStocks = async () => {
+    try {
+      const response = await axios.get("https://localhost:7089/api/stocks");
+      const stocks = response.data;
+
+      const datosStocks = stocks.map((stock) => ({
+        id_stock: stock.id_stock,
+        str_nombre_stock: stock.str_nombre_stock,
+        str_direccion: stock.str_direccion,
+      }));
+
+      setDatosStocks(datosStocks);
+
+      console.log(datosStocks);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const obtenerDetallesFacturas = async () => {
+    try {
+      const response = await axios.get(
+        "https://localhost:7089/api/detalles_facturas"
+      );
+      const detallesFacturas = response.data;
+
+      const datosDetallesFacturas = detallesFacturas.map((detalleFactura) => ({
+        id_detalle_factura: detalleFactura.id_detalle_factura,
+        int_cantidad: detalleFactura.int_cantidad,
+        fl_iva: detalleFactura.fl_iva,
+        fk_factura: detalleFactura.fk_factura,
+        fk_producto: detalleFactura.fk_producto,
+      }));
+
+      setDatosDetallesFacturas(datosDetallesFacturas);
+
+      console.log(datosDetallesFacturas);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const obtenerFacturas = async () => {
+    try {
+      const response = await axios.get("https://localhost:7089/api/facturas");
+      const facturas = response.data;
+
+      const datosFacturas = facturas.map((factura) => ({
+        id_factura: factura.id_factura,
+        int_timbrado: factura.int_timbrado,
+        str_ruc_cliente: factura.str_ruc_cliente,
+        str_nombre_cliente: factura.str_nombre_cliente,
+        date_fecha_emision: factura.date_fecha_emision,
+        fl_total_pagar: factura.fl_total_pagar,
+        fl_iva: factura.fl_iva,
+        fk_cliente: factura.fk_cliente,
+        bool_estado_factura: factura.bool_estado_factura,
+      }));
+
+      setDatosFacturas(datosFacturas);
+
+      console.log(datosFacturas);
     } catch (error) {
       console.error(error);
     }
@@ -111,6 +257,36 @@ export const FacturaVentas = () => {
     }
   };
 
+  const handleAgregarItem = () => {
+    const item = {
+      producto: productoSeleccionado,
+      cantidad: parseFloat(cantidad),
+      precioUnitario: parseFloat(precioUnitario),
+      impuesto: parseFloat(impuesto),
+    };
+
+    // Verificar disponibilidad de producto en stock
+    const productoStock = datosProductosStock.find(
+      (producto) => producto.fk_producto_elaborado === item.producto
+    );
+
+    if (!productoStock || productoStock.fl_cantidad < item.cantidad) {
+      console.log("No hay suficiente cantidad del producto en stock.");
+      return;
+    }
+
+    setItems([...items, item]);
+
+    const itemTotal =
+      parseFloat(item.precioUnitario) * parseFloat(item.cantidad);
+    setTotal((prevTotal) => prevTotal + itemTotal);
+
+    setProductoSeleccionado("");
+    setCantidad("");
+    setPrecioUnitario("");
+    setImpuesto("");
+  };
+
   useEffect(() => {
     const obtenerFechaActual = () => {
       const fechaActual = new Date();
@@ -132,19 +308,18 @@ export const FacturaVentas = () => {
   }, []);
 
   const guardarFactura = async () => {
-    try {
-      if (!idCliente) {
-        console.log(
-          "No se encontró ningún cliente con el RUC/CI proporcionado"
-        );
-        return;
-      }
+    if (!idCliente) {
+      console.log("No se encontró ningún cliente con el RUC/CI proporcionado");
+      return;
+    }
 
+    // Guardar factura
+    try {
       const factura = {
         int_timbrado: generarNumeroAzar(),
         str_ruc_cliente: ruc,
         str_nombre_cliente: cliente,
-        date_fecha_emision: obtenerFechaActual(),
+        date_fecha_emision: fechaActual,
         fl_total_pagar: total,
         fl_iva_5: 0,
         fl_iva_10: 0,
@@ -157,6 +332,49 @@ export const FacturaVentas = () => {
       );
       const facturaGuardada = facturasResponse.data;
 
+      for (const item of items) {
+        const productoEncontrado = datosProductosElaborados.find(
+          (producto) => producto.nombre === item.producto
+        );
+
+        if (productoEncontrado) {
+          const detallesFactura = {
+            int_cantidad: item.cantidad,
+            fl_iva: 0,
+            fk_factura: facturaGuardada.id_factura,
+            fk_producto: productoEncontrado.id,
+          };
+
+          await axios.post(
+            "https://localhost:7089/api/detalles_facturas",
+            detallesFactura
+          );
+          // Descontar cantidad del producto vendido del stock correspondiente
+          const productoStock = datosProductosStock.find(
+            (producto) =>
+              producto.fk_producto_elaborado === productoEncontrado.id
+          );
+
+          if (productoStock) {
+            const nuevaCantidad = productoStock.fl_cantidad - item.cantidad;
+
+            // Actualizar la cantidad del producto en el estado datosProductosStock
+            setDatosProductosStock((prevProductosStock) =>
+              prevProductosStock.map((producto) =>
+                producto.fk_producto_elaborado === productoEncontrado.id
+                  ? { ...producto, fl_cantidad: nuevaCantidad }
+                  : producto
+              )
+            );
+
+            // Actualizar la cantidad del producto en el stock en la base de datos
+            await axios.put(
+              `https://localhost:7089/api/productos_elaborados_stock/${productoStock.id_producto_stock}`,
+              { ...productoStock, fl_cantidad: nuevaCantidad }
+            );
+          }
+        }
+      }
       console.log("Factura guardada:", facturaGuardada);
     } catch (error) {
       console.error(error);
@@ -187,26 +405,6 @@ export const FacturaVentas = () => {
     } else {
       setPrecioUnitario("");
     }
-  };
-
-  const handleAgregarItem = () => {
-    const item = {
-      producto: productoSeleccionado,
-      cantidad: parseFloat(cantidad),
-      precioUnitario: parseFloat(precioUnitario),
-      impuesto: parseFloat(impuesto),
-    };
-
-    setItems([...items, item]);
-
-    const itemTotal =
-      parseFloat(item.precioUnitario) * parseFloat(item.cantidad);
-    setTotal((prevTotal) => prevTotal + itemTotal);
-
-    setProductoSeleccionado("");
-    setCantidad("");
-    setPrecioUnitario("");
-    setImpuesto("");
   };
 
   return (
@@ -345,7 +543,7 @@ export const FacturaVentas = () => {
           />
         </div>
         <div className="col-sm-12 col-md-4">
-          <Link to="/Caja" className="custom-link">
+          <Link to="/cajaCajeros" className="custom-link">
             <button
               type="button"
               className="btn btn-outline-success facturaAgg"
