@@ -14,8 +14,8 @@ export const FacturaCompra = () => {
   const [datosIngredientes, setDatosIngredientes] = useState([]);
   const [datosProveedores, setDatosProveedores] = useState([]);
   const [datosCompras, setDatosCompras] = useState([]);
-  const {datosIngredientesStock, setDatosIngredientesStock} = useState([]);
-  const {datosIngredientes_stock,setDatosIngredientes_stock} = useState("");
+  const [datosStocks, setDatosStocks] = useState([]);
+  const [datosIngredientesStock, setDatosIngredientesStock] = useState([]);
   const [fechaActual, setFechaActual] = useState("");
   const [ultimaCompra, setUltimaCompra] = useState("");
 
@@ -23,9 +23,54 @@ export const FacturaCompra = () => {
     obtenerIngredientes();
     obtenerProveedores();
     obtenerCompra();
-    //obtenerIngredientesStock();
+    obtenerStocks();
+    obtenerIngredientesStock();
   }, []);
+  //obtenemos el ingregientes stock
+  const obtenerIngredientesStock = async () => {
+    try {
+      const response = await axios.get(
+        "https://localhost:7089/api/ingredientes_stock"
+      );
+      const IngredientesStock = response.data;
 
+      const datosIngredientesStock = IngredientesStock.map((Ingredientestock) => ({
+        id_ingrediente_stock: Ingredientestock.id_ingrediente_stock,
+        fk_ingredientes: Ingredientestock.fk_ingredientes,
+        fk_stock: Ingredientestock.fk_stock,
+        fl_cantidad: Ingredientestock.fl_cantidad,
+      }));
+
+      setDatosIngredientesStock(datosIngredientesStock);
+
+      console.log(datosIngredientesStock);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  //Obtenemos los Stock de la base de datos
+  const obtenerStocks = async () => {
+    try {
+      const response = await axios.get("https://localhost:7089/api/stocks");
+      const stocks = response.data;
+
+      const datosStocks = stocks.map((stock) => ({
+        id_stock: stock.id_stock,
+        str_nombre_stock: stock.str_nombre_stock,
+        str_direccion: stock.str_direccion,
+      }));
+
+      setDatosStocks(datosStocks);
+
+      console.log(datosStocks);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+
+  //Obtenemos los ingredientes de la base de datos
   const obtenerIngredientes = async () => {
     try {
       const response = await axios.get(
@@ -45,6 +90,8 @@ export const FacturaCompra = () => {
     }
   };
 
+
+  //Obtenemos proveedores de la base de datos
   const obtenerProveedores = async () => {
     try {
       const response = await axios.get(
@@ -64,7 +111,7 @@ export const FacturaCompra = () => {
       console.error(error);
     }
   };
-
+  //Obtenemos compras de la base de datos
   const obtenerCompra = async () => {
     try {
       const response = await axios.get("https://localhost:7089/api/compras");
@@ -85,27 +132,6 @@ export const FacturaCompra = () => {
       console.error(error);
     }
   };
-
-  /*
-  const obtenerIngredientesStock = async () => {
-    try {
-      const response = await axios.get("https://localhost:7089/api/ingredientes_stock");
-      const ingredientes_stock = response.data;
-
-      const datosIngredientes_stock = ingredientes_stock.map((ingredientes) => ({
-        id_ingrediente_stock: ingredientes_stock.id_ingrediente_stock,
-        fk_producto_elaborado: ingredientes_stock.fk_producto_elaborado,
-        fk_stock: ingredientes_stock.fk_stock,
-        fl_cantidad: ingredientes_stock.fl_cantidad,
-      }));
-
-      setDatosIngredientes_stock(datosIngredientes_stock);
-
-      console.log(datosCompras);
-    } catch (error) {
-      console.error(error);
-    }
-  };*/
 
   const nroFacturaAleatorio = () => {
     const nroFactura = Math.floor(Math.random() * 1000000000);
@@ -132,138 +158,157 @@ export const FacturaCompra = () => {
     return () => clearInterval(interval);
   }, []);
 
+
+  
   const handleAgregarItem = () => {
-    const nuevoItem = {
-      proveedor: proveedorSeleccionado,
+    const ingredienteEncontrado = datosIngredientes.find(
+      (ingrediente) => ingrediente.nombre === ingredienteSeleccionado
+    );
+
+    console.log(ingredienteEncontrado);
+
+    const item = {
       ingrediente: ingredienteSeleccionado,
       cantidad: parseFloat(cantidad),
       precioUnitario: parseFloat(precioUnitario),
+      impuesto: parseFloat(impuesto),
     };
 
-    //Comprobamos el nombre del nuevoItem con los items existentes
-    const nombreItem = nuevoItem.ingrediente;
-    console.log(nombreItem);
+    console.log(item.cantidad);
 
-    console.log(datosIngredientes);
+    console.log(ingredienteEncontrado.id);
+    console.log(datosIngredientesStock);
 
-    //Buscamos si existe el item comparando el nombre con el nombre en datosIngredientes
-    const itemExistente = datosIngredientes.find(
-      (ingrediente) => ingrediente.nombre === nombreItem
+    const ingredienteStockEncontrado = datosIngredientesStock.find(
+      (ingrediente) => ingrediente.fk_ingredientes === ingredienteEncontrado.id
     );
 
-    console.log(itemExistente.id);
+    console.log(ingredienteStockEncontrado);
 
-    //Obtenemos todas las compras
-    const compras = datosCompras;
+    setItems([...items, item]);
 
-    //Buscamos la ultima compra en la lista de compras
-    const ultimaCompra = compras[compras.length - 1];
+    const itemTotal =
+      parseFloat(item.precioUnitario) * parseFloat(item.cantidad);
+    setTotal((prevTotal) => prevTotal + itemTotal);
 
-    if (itemExistente) {
-      //Hacemos un detalle de compra con el item existente
-      const detalleCompra = {
-        fk_compra: ultimaCompra.id_compra,
-        fk_ingrediente: itemExistente.id,
-        fk_stock: 1,
-        int_cantidad: parseInt(cantidad),
-        fl_precio_unidad: parseFloat(precioUnitario),
-        fl_iva: 0.05,
-      };
-
-      console.log(detalleCompra);
-
-      axios
-        .post("https://localhost:7089/api/detalles_de_compras", detalleCompra)
-        .then((response) => {
-          console.log(response);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    }
-
-    setItems([...items, nuevoItem]);
-    const Total = parseFloat(precioUnitario) * parseFloat(cantidad);
-    setTotal((prevTotal) => prevTotal + Total);
-    // Restablecer los valores de entrada a su estado inicial
     setIngredienteSeleccionado("");
     setCantidad("");
     setPrecioUnitario("");
     setImpuesto("");
-  };
 
-  const handleGuardarCompra = () => {
-    //Obtenemos todas las compras
-    const compras = datosCompras;
+    console.log(ingredienteStockEncontrado.id_ingrediente_stock);
 
-    console.log(compras);
-
-
-    const nuevoItem = {
-      proveedor: proveedorSeleccionado,
-      fl_precio_total: total,
+    //Descontar del stock
+    const ingredienteStock = {
+      id_ingrediente_stock: ingredienteStockEncontrado.id_ingrediente_stock,
+      fk_ingredientes: ingredienteStockEncontrado.fk_ingredientes,
+      fk_stock: ingredienteStockEncontrado.fk_stock,
+      fl_cantidad: ingredienteStockEncontrado.fl_cantidad + item.cantidad,
     };
 
-    console.log(nuevoItem);
+    const body = JSON.stringify(ingredienteStock);
 
-    //Comprobamos el nombre del proveedor de nuevoItem con los proveedores
-    const nombreProveedor = nuevoItem.proveedor;
-    console.log(nombreProveedor);
+    try {
+      axios
+        .put(
+          `https://localhost:7089/api/ingredientes_stock/${ingredienteStockEncontrado.id_ingrediente_stock}`,
+          body,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        )
+        .then((res) => {
+          console.log(res);
+        });
+    } catch (error) {
+      console.error(error);
+    }
 
-    //Buscamos si existe el proveedor comparando el nombre con el nombre en datosProveedores
-    const proveedorExistente = datosProveedores.find(
-      (proveedor) => proveedor.nombre === nombreProveedor
+    console.log(ingredienteStock);
+  };
+
+  const guardarCompra = async () => {
+
+    const proveerdorEncontrado = datosProveedores.find(
+      (proveedor) => proveedor.nombre === proveedorSeleccionado
     );
+    // Crear la compra
+    try {
+      const compra = {
+        fk_proveedor: proveerdorEncontrado.id,
+        fl_precio_total: total,
+        date_compra: fechaActual,
+        str_numero_factura: nroFacturaAleatorio().toString()
+      };
+      console.log(compra);
+      const body = JSON.stringify(compra);
+      console.log(body);
 
-    console.log(proveedorExistente.id);
+      const facturaResponse = await axios.post(
+        "https://localhost:7089/api/compras",
+        body, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-    //Obtenemos el precio total
-    const precioTotal = nuevoItem.fl_precio_total;
+      const compraGuardada = facturaResponse.data;
 
-    console.log(precioTotal);
+      // Crear los detalles de la factura
+      const detallesCompra = items.map((item) => {
+        const ingredienteEncontrado = datosIngredientes.find(
+          (ingrediente) => ingrediente.nombre === item.ingrediente
+        );
+        console.log(ingredienteEncontrado);
 
-    //Generamos el numero de factura aleatorio
-    const numeroFactura = nroFacturaAleatorio().toString();
+        if (ingredienteEncontrado) {
+          return {
+            int_cantidad: item.cantidad,
+            fk_compra: compraGuardada.id_compra,
+            fk_ingrediente: ingredienteEncontrado.id,
+            fk_stock: 1,
+            fl_precio_unidad: item.precioUnitario,
+            fl_iva: 0.05
+          };
+        } else {
+          return null;
+        }
+      });
 
-    //Hacemos un put sobre la ultima compra para actualizar el proveedor y el precio total
-    const ultimaCompra = datosCompras[datosCompras.length - 1];
+      console.log(detallesCompra);
 
-    const compraActualizada = JSON.stringify({
-      id_compra: ultimaCompra.id_compra,
-      fk_proveedor: proveedorExistente.id,
-      fl_precio_total: precioTotal,
-      date_compra: fechaActual,
-      str_numero_factura: numeroFactura,
-    });
+      // Filtrar los detalles de la factura que no se encontraron
+      const detallesCompraValidos = detallesCompra.filter(
+        (detalle) => detalle !== null
+      );
 
-    console.log(compraActualizada);
+      console.log(detallesCompraValidos);
 
-    axios.put(
-      `https://localhost:7089/api/compras/${ultimaCompra.id_compra}`,
-      compraActualizada,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+      // Guardar los detalles de la factura
+      detallesCompraValidos.forEach(async (detalle) => {
+        const body = JSON.stringify(detalle);
+        console.log(body);
 
-    //Agregamos los ingredientes seleccionados al ingredientes_stock
-    const ingredientesSeleccionados = items;
+        const detalleResponse = await axios.post(
+          "https://localhost:7089/api/detalles_de_compras",
+          body, {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
-    console.log(ingredientesSeleccionados);
+        const detalleGuardado = detalleResponse.data;
 
-    //Obtenemos todos los ingredientes_stock
-    const ingredientes_stock = datosIngredientes_stock;
-
-    console.log(ingredientes_stock);
-
-    //Buscamos lo detalles_de_compras de la ultima compra y guardamos la cantidad y el id del ingrediente
-
-    
-
-
-
+        console.log(detalleGuardado);
+      });
+      console.log("Compra guardada:", compraGuardada);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -404,11 +449,11 @@ export const FacturaCompra = () => {
           />
         </div>
         <div className="col-sm-12 col-md-4">
-          <Link to="/Compras" className="custom-link">
+          <Link to="/Compras" className="custom-link" /*onClick={() => window.location.replace("/Compras")}*/>
             <button
               type="button"
               className="btn btn-outline-success facturaAgg"
-              onClick={handleGuardarCompra}
+              onClick={guardarCompra}
             >
               Guardar
             </button>

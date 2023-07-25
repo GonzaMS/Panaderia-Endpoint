@@ -30,26 +30,6 @@ export class Compras extends Component {
     this.fetchCompras();
   }
   fechaActual = new Date().toISOString().split("T")[0];
-  //funcion que guarda una compra
-  guardarCompra = async () => {
-    try {
-      const compras = {
-        fk_proveedor: 1,
-        fl_precio_total: 0.0,
-        date_compra: this.fechaActual,
-        str_numero_factura: null,
-      };
-
-      console.log("Factura a guardar:", compras);
-      const comprasResponse = await axios.post("https://localhost:7089/api/compras", compras);
-      const compraGuardada = comprasResponse.data;
-      
-      console.log("Factura guardada:", compraGuardada);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-  
   
   fetchCompras() {
     try {
@@ -58,6 +38,7 @@ export class Compras extends Component {
         .get("https://localhost:7089/api/compras")
         .then((response) => {
           this.setState({ compras: response.data });
+          console.log(response.data);
         })
         .catch((error) => {
           console.log(error);
@@ -68,6 +49,7 @@ export class Compras extends Component {
         .get("https://localhost:7089/api/detalles_de_compras")
         .then((response) => {
           this.setState({ detalles_de_compras: response.data });
+          console.log(response.data);
         })
         .catch((error) => {
           console.log(error);
@@ -139,6 +121,7 @@ export class Compras extends Component {
         this.setState({ selectedCompra });
         console.log(selectedCompra);
         this.setState({ detallesCompraModal: detallesCompra });
+        console.log(detallesCompra);
         this.mostrarModalCompra();
       })
       .catch((error) => {
@@ -149,6 +132,7 @@ export class Compras extends Component {
   //Obtener todos los detalles de compras relacionados con esa compra lo guarda en un array y obtenemos el nombre del ingrediente, la cantidad y el precio unitario
   obtenerDetallesCompra = (idCompra) => {
     const { detalles_de_compras, ingredientes } = this.state;
+    console.log(detalles_de_compras);
     const data = [];
     detalles_de_compras.forEach((detalle) => {
       console.log(detalle.fk_compra);
@@ -277,7 +261,7 @@ export class Compras extends Component {
 
             <div className="col-sm-12 col-md-4">
               <Link to="/FacturaCompra" className="custom-link">
-                <button type="button" className="custom-button" onClick={this.guardarCompra}>
+                <button type="button" className="custom-button">
                   {" "}
                   Nueva Compra
                 </button>
@@ -301,7 +285,7 @@ export class Compras extends Component {
                 <tr key={dato.id_compra}>
                   <td>{this.mostrarNombreProveedor(dato.fk_proveedor)}</td>
                   <td>{this.mostrarRucProveedor(dato.fk_proveedor)}</td>
-                  <td>{dato.date_compra}</td>
+                  <td>{dato.date_compra.substring(0,10)}</td>
                   <td>{dato.fl_precio_total}</td>
                   <td>
                     <button
