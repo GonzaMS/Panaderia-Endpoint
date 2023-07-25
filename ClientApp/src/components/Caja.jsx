@@ -25,6 +25,7 @@ export class Caja extends Component {
     precioUnitario: [], // Lista de precios unitarios de los productos de la factura seleccionada
     cantidad: [], // Lista de cantidades de los productos de la factura seleccionada
     cajaTotal: 0, // Total de la caja
+    montoTotal: 0, // Monto total de la factura seleccionada
     nombreCajero: "", // Nombre del cajero seleccionado
     cobrarModalOpen: false,
     montoPagar: 0, // Monto a pagar
@@ -39,6 +40,24 @@ export class Caja extends Component {
     if (cajaAbiertaLocal) {
       // Si hay un estado de caja abierta almacenado, actualizar el estado en la clase y evitar cerrar la caja
       this.setState({ cajaAbierta: true });
+    }
+
+    // Verificar si hay un monto de caja almacenado en el almacenamiento local
+    const montoCajaLocal = localStorage.getItem("cajaTotal");
+    if (montoCajaLocal) {
+      this.setState({ cajaTotal: parseFloat(montoCajaLocal) });
+    }
+
+    // Verificar si hay un nombre de cajero almacenado en el almacenamiento local
+    const nombreCajeroLocal = localStorage.getItem("nombreCajero");
+    if (nombreCajeroLocal) {
+      this.setState({ nombreCajero: nombreCajeroLocal });
+    }
+
+    // Verificar si hay un id de cajero almacenado en el almacenamiento local
+    const cajeroSeleccionadoLocal = localStorage.getItem("cajeroSeleccionado");
+    if (cajeroSeleccionadoLocal) {
+      this.setState({ selectedCajero: cajeroSeleccionadoLocal });
     }
 
     this.fetchCajas();
@@ -198,10 +217,14 @@ export class Caja extends Component {
 
     console.log("fechaApertura", fechaApertura);
 
+    //Preguntamos con cuanto dinero quiere abrir la caja
+    const montoCaja = prompt("¿Con cuanto dinero desea abrir la caja?");
+    console.log("montoCaja", montoCaja);
+
     // Crear el objeto de apertura de caja con los datos necesarios
     const aperturaCaja = {
       fk_caja: 1,
-      fl_monto_caja: 300000,
+      fl_monto_caja: montoCaja,
       date_fecha_del_dia: fechaApertura, // Convertir a formato ISO para enviar al servidor
       fk_cajero: selectedCajero,
       date_hora_entrada: fechaApertura,
@@ -223,6 +246,9 @@ export class Caja extends Component {
         // Actualizar el estado de la caja y mostrar un mensaje de éxito
         this.setState({ cajaAbierta: true });
 
+        //Actualizamos los ultimos detalles de caja
+        this.fetchDetallesCajas();
+
         // Obtener el último detalle de caja
         const ultimoDetalleCaja = detalles_cajas[detalles_cajas.length - 1];
 
@@ -242,6 +268,15 @@ export class Caja extends Component {
         // Actualizar el estado de cajaTotal y nombreCajero
         this.setState({ cajaTotal, nombreCajero });
 
+        //Guardo en el alamacenamiento local el id del cajero seleccionado
+        localStorage.setItem("cajeroSeleccionado", cajeroSeleccionado.id_cajero);
+        
+        // Guardar el estado de cajaTotal en el almacenamiento local
+        localStorage.setItem("cajaTotal", cajaTotal);
+
+        // Guardar el estado del campo nombreCajero en el almacenamiento local
+        localStorage.setItem("nombreCajero", nombreCajero);
+
         alert("¡La caja ha sido abierta con éxito!");
       })
       .catch((error) => {
@@ -256,14 +291,20 @@ export class Caja extends Component {
     // Guardar el estado de cajaAbierta en el almacenamiento local
     localStorage.setItem("cajaAbierta", "true");
 
+    //Actualizamos los ultimos detalles de caja
     this.fetchDetallesCajas();
   };
 
   // Función para cerrar la caja
   cerrarCaja = () => {
+
+    //Actualizamos los ultimos detalles de caja
+    this.fetchDetallesCajas();
+
     // Obtenemos el ultimo detalle de caja
     const { detalles_cajas, selectedCajero } = this.state;
     console.log("detalles_cajas", detalles_cajas);
+    console.log("selectedCajero", selectedCajero);
 
     //Obtenemos el ultimo detalle de caja
     const ultimoDetalleCaja =
@@ -286,7 +327,7 @@ export class Caja extends Component {
       fk_caja: 1,
       fk_cajero: selectedCajero,
       fl_monto_caja: fl_monto_caja,
-      bool_estado_caja: false,
+      bool_estado_caja: false
     };
 
     console.log("actualizarDetalleCaja", actualizarDetalleCaja);
@@ -315,6 +356,15 @@ export class Caja extends Component {
       });
 
     console.log(selectedCajero);
+
+    // Borrar el estado de cajaTotal del almacenamiento local
+    localStorage.removeItem("cajaTotal");
+
+    // Borrar el estado de nombreCajero del almacenamiento local
+    localStorage.removeItem("nombreCajero");
+
+    // Borrar el estado del id del cajero seleccionado del almacenamiento local
+    localStorage.removeItem("cajeroSeleccionado");
   };
 
   //Funcion para ver los detalles de la factura
@@ -350,6 +400,7 @@ export class Caja extends Component {
       cantidad: cantidadProductosElaborados,
       precioUnitario: precioUnitarioProductosElaborados,
     });
+
   };
 
   //Funcion para cerrar el modal
@@ -529,7 +580,7 @@ export class Caja extends Component {
                     <th></th>
                     <th scope="col">Total</th>
                     <th></th>
-                    <th scope= "col">IVA</th>
+                    <th scope="col">IVA</th>
                     <th></th>
                     <th scope="col">Acciones</th>
                   </tr>

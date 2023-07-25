@@ -4,25 +4,25 @@ import "../css/custom.css";
 import axios from "axios";
 
 export const FacturaVentas = () => {
-  const [cliente, setCliente] = useState("");
-  const [ruc, setRuc] = useState("");
+  const [cliente, setCliente] = useState(""); // Nuevo estado para el campo cliente
+  const [ruc, setRuc] = useState(""); // Nuevo estado para el campo RUC
   const [ci, setCI] = useState(""); // Nuevo estado para el campo CI
-  const [idCliente, setIdCliente] = useState("");
-  const [productoSeleccionado, setProductoSeleccionado] = useState("");
-  const [cantidad, setCantidad] = useState("");
-  const [precioUnitario, setPrecioUnitario] = useState("");
-  const [impuesto, setImpuesto] = useState("");
-  const [items, setItems] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [datosProductosElaborados, setDatosProductosElaborados] = useState([]);
+  const [idCliente, setIdCliente] = useState(""); // Nuevo estado para el campo ID del cliente
+  const [productoSeleccionado, setProductoSeleccionado] = useState(""); // Nuevo estado para el campo producto seleccionado
+  const [cantidad, setCantidad] = useState(""); // Nuevo estado para el campo cantidad
+  const [precioUnitario, setPrecioUnitario] = useState(""); // Nuevo estado para el campo precio unitario
+  const [impuesto, setImpuesto] = useState(""); // Nuevo estado para el campo impuesto
+  const [items, setItems] = useState([]); // Nuevo estado para los items
+  const [total, setTotal] = useState(0); // Nuevo estado para el total
+  const [datosProductosElaborados, setDatosProductosElaborados] = useState([]); // Nuevo estado para los productos elaborados
   const [datosClientes, setDatosClientes] = useState([]); // Nuevo estado para los clientes
-  const [fechaActual, setFechaActual] = useState("");
-  const [datosProductosStock, setDatosProductosStock] = useState([]);
-  const [datosTiposMovimientos, setDatosTiposMovimientos] = useState([]);
-  const [datosMovimientoStock, setDatosMovimientoStock] = useState([]);
-  const [datosStocks, setDatosStocks] = useState([]);
-  const [datosDetallesFacturas, setDatosDetallesFacturas] = useState([]);
-  const [datosFacturas, setDatosFacturas] = useState([]);
+  const [fechaActual, setFechaActual] = useState(""); // Nuevo estado para la fecha actual
+  const [datosProductosStock, setDatosProductosStock] = useState([]); // Nuevo estado para los productos en stock
+  const [datosTiposMovimientos, setDatosTiposMovimientos] = useState([]); // Nuevo estado para los tipos de movimientos
+  const [datosMovimientoStock, setDatosMovimientoStock] = useState([]); // Nuevo estado para los movimientos de stock
+  const [datosStocks, setDatosStocks] = useState([]); // Nuevo estado para los stocks
+  const [datosDetallesFacturas, setDatosDetallesFacturas] = useState([]); // Nuevo estado para los detalles de las facturas
+  const [datosFacturas, setDatosFacturas] = useState([]); // Nuevo estado para las facturas
 
   useEffect(() => {
     obtenerProductosElaborados();
@@ -173,7 +173,7 @@ export const FacturaVentas = () => {
       const datosDetallesFacturas = detallesFacturas.map((detalleFactura) => ({
         id_detalle_factura: detalleFactura.id_detalle_factura,
         int_cantidad: detalleFactura.int_cantidad,
-        fl_iva: detalleFactura.fl_iva,
+        fl_iva: 0.05,
         fk_factura: detalleFactura.fk_factura,
         fk_producto: detalleFactura.fk_producto,
       }));
@@ -291,9 +291,9 @@ export const FacturaVentas = () => {
         str_nombre_cliente: cliente,
         date_fecha_emision: fechaActual,
         fl_total_pagar: total,
-        fl_iva_5: 0,
-        fl_iva_10: 0,
+        fl_iva: 0.05,
         fk_cliente: idCliente,
+        bool_estado_factura: false,
       };
 
       const facturaResponse = await axios.post(
