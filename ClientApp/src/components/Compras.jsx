@@ -20,6 +20,7 @@ export class Compras extends Component {
     ingredientes: [], //Array de ingredientes
     detalles_de_compras: [], //Array de detalles de compras
     detallesCompraModal: [], //Array de detalles de compras para el modal
+    detalles_de_caja: [], //Array de detalles de caja
     selectedCompra: {}, //Compra seleccionada para el modal
     modalActualizar: false, //Modal para actualizar
     modalInsertar: false, //Modal para insertar
@@ -43,6 +44,17 @@ export class Compras extends Component {
         .catch((error) => {
           console.log(error);
         });
+      //Detalles de caja
+      axios
+        .get("https://localhost:7089/api/detalles_cajas")
+        .then((response) => {
+          this.setState({ detalles_de_caja: response.data });
+          console.log(response.data);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+      
 
       //Detalles de compras
       axios
@@ -151,6 +163,82 @@ export class Compras extends Component {
     console.log(data);
     return data;
   };
+
+    //funcion para pagar un a compra
+    pagarCompra = (compraId) => {
+      const { detalles_de_caja, selectedCompra } = this.state;
+      console.log(compraId);
+      //Obtenemos toda la informacion de la compra seleccionada
+      const compra = this.state.compras.find(
+        (compra) => compra.id_compra === compraId
+      );
+
+      console.log(compra);
+    
+      //Obtenemos el total de la compra
+      const montoCompra = compra.fl_precio_total;
+      console.log(montoCompra);
+      //Obtener el monto actual de la caja
+      const montoCaja = detalles_de_caja[detalles_de_caja.length - 1].fl_monto_caja;
+
+      //Verificamos si hay suficiente dinero en la caja, si no hay tiramos un alert, si hay descontamos de la caja
+      if (montoCaja < montoCompra) {
+        alert("No hay suficiente dinero en la caja");
+      }else{
+        try{
+          //Obtenemos el ultimo detalle de caja
+          const ultimoDetalleCaja = detalles_de_caja[detalles_de_caja.length - 1];
+          //Obtenemos el id del ultimo detalle de caja
+          const idUltimoDetalleCaja = ultimoDetalleCaja.id_detalle_caja;
+
+          //Descontamos el monto de la compra del monto de la caja
+          const montoActualizado = montoCaja - montoCompra;
+          console.log(montoActualizado);
+
+          //Creamos el objeto para insertar el detalle de caja
+          const detalleCaja = {
+            id_detalle_caja: idUltimoDetalleCaja,
+            fk_caja: 1,
+            fl_monto_caja: montoActualizado,
+            date_fecha_del_dia: ultimoDetalleCaja.date_fecha_del_dia,
+            fk_cajero: ultimoDetalleCaja.fk_cajero,
+            date_hora_entrada: ultimoDetalleCaja.date_hora_entrada,
+            date_hora_salida: ultimoDetalleCaja.date_hora_salida,
+            bool_estado_caja: ultimoDetalleCaja.bool_estado_caja,
+          };
+          console.log(detalleCaja);
+
+          const body = JSON.stringify(detalleCaja);
+
+          console.log(body);
+
+          //Actualizamos el ultimo detalle de caja
+          axios
+          .put(`https://localhost:7089/api/detalles_cajas/${idUltimoDetalleCaja}`,
+          body,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+          )
+          .then((response) => {
+            console.log(response);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+
+          //Actualizar el montoCaja del localstorage
+          localStorage.setItem("cajaTotal", montoActualizado);
+
+
+        }catch{
+          console.log("Error al pagar la compra");
+        }
+      }
+
+    };
 
   //Funcion para obtener el nombre del ingrediente relacionado con ese detalle de compra
   mostrarNombreIngrediente = (idIngrediente) => {
@@ -313,7 +401,10 @@ export class Compras extends Component {
                           <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z" />
                         </svg>
                       </svg>
-                    </button>{" "}
+                    </button>{" "} 
+                    <button className="btn btn-primary" onClick={() => this.pagarCompra(dato.id_compra)}>
+                      Pagar
+                    </button>
                   </td>
                 </tr>
               ))}

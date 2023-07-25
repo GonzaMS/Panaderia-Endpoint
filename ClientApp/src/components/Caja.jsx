@@ -202,9 +202,7 @@ export class Caja extends Component {
 
   // Función para abrir la caja
   abrirCaja = () => {
-    const { selectedCajero, detalles_cajas, cajeros } = this.state;
-
-    console.log("selectedCajero", selectedCajero);
+    const { selectedCajero, cajeros } = this.state;
 
     // Verificar si se ha seleccionado un cajero
     if (!selectedCajero) {
@@ -215,11 +213,8 @@ export class Caja extends Component {
     // Obtener la fecha y hora actual
     const fechaApertura = new Date();
 
-    console.log("fechaApertura", fechaApertura);
-
-    //Preguntamos con cuanto dinero quiere abrir la caja
-    const montoCaja = prompt("¿Con cuanto dinero desea abrir la caja?");
-    console.log("montoCaja", montoCaja);
+    // Preguntamos con cuanto dinero quiere abrir la caja
+    const montoCaja = prompt("¿Con cuánto dinero desea abrir la caja?");
 
     // Crear el objeto de apertura de caja con los datos necesarios
     const aperturaCaja = {
@@ -243,16 +238,11 @@ export class Caja extends Component {
         },
       })
       .then((response) => {
+        alert("¡La caja ha sido abierta con éxito!");
         // Actualizar el estado de la caja y mostrar un mensaje de éxito
-        this.setState({ cajaAbierta: true });
-
-        //Actualizamos los ultimos detalles de caja
-        this.fetchDetallesCajas();
 
         // Obtener el último detalle de caja
-        const ultimoDetalleCaja = detalles_cajas[detalles_cajas.length - 1];
-
-        // Obtener el total de la caja del último detalle de caja
+        const ultimoDetalleCaja = response.data;
         const cajaTotal = ultimoDetalleCaja.fl_monto_caja;
 
         const convertir = parseInt(selectedCajero);
@@ -261,43 +251,42 @@ export class Caja extends Component {
         const cajeroSeleccionado = cajeros.find(
           (cajero) => cajero.id_cajero === convertir
         );
-        console.log("cajeroSeleccionado", cajeroSeleccionado);
 
         const nombreCajero = cajeroSeleccionado.str_nombre_cajero;
 
         // Actualizar el estado de cajaTotal y nombreCajero
         this.setState({ cajaTotal, nombreCajero });
 
-        //Guardo en el alamacenamiento local el id del cajero seleccionado
-        localStorage.setItem("cajeroSeleccionado", cajeroSeleccionado.id_cajero);
-        
-        // Guardar el estado de cajaTotal en el almacenamiento local
-        localStorage.setItem("cajaTotal", cajaTotal);
+        //Guardo en el almacenamiento local el id del cajero seleccionado
+        localStorage.setItem(
+          "cajeroSeleccionado",
+          cajeroSeleccionado.id_cajero
+        );
+
+        // Guardar el estado de detalles_cajas fl_monto_caja en el almacenamiento local
+        localStorage.setItem("cajaTotal", ultimoDetalleCaja.fl_monto_caja);
 
         // Guardar el estado del campo nombreCajero en el almacenamiento local
         localStorage.setItem("nombreCajero", nombreCajero);
 
+        // Actualizar el estado de la caja y mostrar un mensaje de éxito
+        this.setState({ cajaAbierta: true });
         alert("¡La caja ha sido abierta con éxito!");
+
+        // Guardar el estado de cajaAbierta en el almacenamiento local
+        localStorage.setItem("cajaAbierta", "true");
+
+        //Actualizamos los ultimos detalles de caja
+        this.fetchDetallesCajas();
       })
       .catch((error) => {
         console.error("Error al abrir la caja:", error);
         alert("Error al abrir la caja. Por favor, inténtelo de nuevo.");
       });
-
-    // Actualizar el estado de la caja y mostrar un mensaje de éxito
-    this.setState({ cajaAbierta: true });
-    alert("¡La caja ha sido abierta con éxito!");
-
-    // Guardar el estado de cajaAbierta en el almacenamiento local
-    localStorage.setItem("cajaAbierta", "true");
-
-    //Actualizamos los ultimos detalles de caja
-    this.fetchDetallesCajas();
   };
 
   // Función para cerrar la caja
   cerrarCaja = () => {
-
     //Actualizamos los ultimos detalles de caja
     this.fetchDetallesCajas();
 
@@ -327,7 +316,7 @@ export class Caja extends Component {
       fk_caja: 1,
       fk_cajero: selectedCajero,
       fl_monto_caja: fl_monto_caja,
-      bool_estado_caja: false
+      bool_estado_caja: false,
     };
 
     console.log("actualizarDetalleCaja", actualizarDetalleCaja);
@@ -365,6 +354,8 @@ export class Caja extends Component {
 
     // Borrar el estado del id del cajero seleccionado del almacenamiento local
     localStorage.removeItem("cajeroSeleccionado");
+
+    this.fetchDetallesCajas();
   };
 
   //Funcion para ver los detalles de la factura
@@ -400,7 +391,6 @@ export class Caja extends Component {
       cantidad: cantidadProductosElaborados,
       precioUnitario: precioUnitarioProductosElaborados,
     });
-
   };
 
   //Funcion para cerrar el modal
@@ -454,10 +444,38 @@ export class Caja extends Component {
   handleSubmitCobro = (event) => {
     event.preventDefault();
 
-    // Obtener los valores del formulario de cobro
-    const { formaPagoSeleccionada } = this.state;
+    //Obtener el metodo de pago seleccionado
+    const { formaPagoSeleccionada, valorEfectivo, montoPagar, detalles_cajas } =
+      this.state;
 
-    // Realizar acciones necesarias con los datos del cobro
+    console.log("formaPagoSeleccionada", formaPagoSeleccionada);
+
+    console.log("valorEfectivo", valorEfectivo);
+    if (valorEfectivo >= montoPagar) {
+      //Obtenemos el ultimo detalle de caja
+      const ultimoDetalleCaja = detalles_cajas[detalles_cajas.length - 1];
+
+      console.log("ultimoDetalleCaja", ultimoDetalleCaja);
+
+      //Obtenemos el valor del local storage cajaTotal
+      const fl_monto_total = parseFloat(localStorage.getItem("cajaTotal"));
+
+      // A ese fl_monto_total le sumamos el montoPagar
+      const fl_monto_total_actualizado = fl_monto_total + montoPagar;
+
+      //Actualizamos el cajaTotal del local storage
+      localStorage.setItem("cajaTotal", fl_monto_total_actualizado);
+
+      //Actualizamos el estado de la factura
+      const { facturas, selectedFactura } = this.state;
+      
+      //Obtenemos la factura seleccionada
+      const facturaSeleccionada = facturas.find(
+        (factura) => factura.id_factura === selectedFactura
+      );
+        console.log("facturaSeleccionada", facturaSeleccionada);
+
+    }
 
     // Cerrar el modal de cobro
     this.setState({ cobrarModalOpen: false });
