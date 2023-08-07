@@ -475,6 +475,9 @@ export class Caja extends Component {
       );
         console.log("facturaSeleccionada", facturaSeleccionada);
 
+        //Recargamos la pagina
+        window.location.reload();
+
     }
 
     // Cerrar el modal de cobro
